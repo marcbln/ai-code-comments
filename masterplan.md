@@ -53,7 +53,7 @@ A CLI utility that intelligently adds PHPDoc docblocks and section comments (`//
 ## Development Phases
 
 ### Phase 1: Core Functionality
-- 1.1 Build the CLI interface using Typer.
+- 1.1 Build the CLI interface using Typer. Use `uv` with build system `hatchling`
 - 1.2 Integrate the LLM API for generating PHPDoc and section comments.
 - 1.3 Implement file overwriting and dry-run mode.
 

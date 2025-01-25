@@ -2,4 +2,5 @@
 .aider*
 
 vendor/
+__pycache__
 

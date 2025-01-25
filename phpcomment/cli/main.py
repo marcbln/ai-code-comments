@@ -2,20 +2,48 @@
 # File: phpcomment/cli/main.py
 
 import typer
-from rich import print
+from pathlib import Path
+from typing import Optional
+from rich.console import Console
 from ..core.processor import process_php_file
+from ..utils.error_handler import handle_error
+from ..utils.output import print_success, print_info
 
-app = typer.Typer(help="PHP documentation automation tool")
+app = typer.Typer(help="Automated PHP documentation tool")
+console = Console()
 
 @app.command()
-def annotate(
-    file_path: str = typer.Argument(..., help="PHP file to process"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Preview changes without saving"),
+def comment(
+    file_path: Path = typer.Argument(..., help="Path to PHP file to document", exists=True),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Preview changes without modifying files"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed processing information")
 ):
-    """Main command to process PHP files"""
-    # TODO: Implement core processing flow
-    print(f"Processing {file_path}...")
-    # process_php_file(file_path, dry_run)
+    """
+    Add PHPDoc comments and section markers to a PHP file
+    
+    Features:
+    - Generates PHPDoc blocks for classes and functions
+    - Adds // ---- section separators
+    - Preserves original code structure
+    """
+    try:
+        result = process_php_file(file_path, dry_run=dry_run)
+        
+        if dry_run:
+            print_info("\n[DRY RUN MODE] Proposed changes:\n")
+            console.print(result)
+        else:
+            print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
+            
+            if verbose:
+                console.print("\nModified content:", markup=False)
+                console.print(result)
+                
+    except Exception as e:
+        handle_error(e, verbose=verbose)
+
+def main():
+    app()
 
 if __name__ == "__main__":
-    app()
+    main()

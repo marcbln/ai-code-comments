@@ -12,8 +12,12 @@ A CLI tool for automatically adding PHPDoc blocks and section comments to PHP co
 ## Quick Start
 
 ```bash
-pip install -r requirements.txt
-python -m phpcomment.cli.main --help
+# Install with uv (or use pip)
+uv pip install -e .
+
+# Get help
+phpcomment --help
+phpcomment comment --help
 ```
 
 ## Configuration
