@@ -43,7 +43,7 @@ def comment(
                 console.print(result)
                 
     except Exception as e:
-        handle_error(e, verbose=verbose)
+        handle_errors(e, verbose=verbose)
 
 def main():
     app()

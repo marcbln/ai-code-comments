@@ -10,9 +10,10 @@ def handle_errors(func: Callable[..., T]) -> Callable[..., T]:
     """Decorator for consistent error handling"""
     @wraps(func)
     def wrapper(*args, **kwargs) -> T:
-        # TODO: Implement error handling with rich output
         try:
             return func(*args, **kwargs)
         except Exception as e:
+            from .output import print_error  # Add circular import guard
+            print_error(f"Operation failed: {str(e)}")
             raise
     return wrapper
