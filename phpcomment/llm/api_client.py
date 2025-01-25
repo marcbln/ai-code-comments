@@ -10,6 +10,7 @@ class LLMClient:
     
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
+        self.model = 'deepseek/deepseek-r1'
         if not self.api_key:
             raise ValueError(
                 "OpenRouter API key required. "
@@ -19,7 +20,7 @@ class LLMClient:
         if not self.api_key.startswith("sk-"):
             raise ValueError("Invalid API key format. Keys should start with 'sk-'")
     
-    def generate_documentation(self, php_code: str) -> str:
+    def improveDocumentation(self, php_code: str) -> str:
         """Send PHP code to LLM and return documented version"""
         
         prompt = f"""Analyze this PHP code and:
@@ -43,7 +44,7 @@ PHP code:
                     "X-Title": "PHPComment/1.0"  # Identify your app with version
                 },
                 json={
-                    "model": "deepseek-ai/deepseek-coder-33b-instruct",  # Corrected model name
+                    "model": self.model,
                     "messages": [
                         {
                             "role": "system",
@@ -72,7 +73,7 @@ PHP code:
             - Prompt Length: {len(prompt)} chars
             """
             raise RuntimeError(f"LLM API failed: {str(e)}\n{debug_info}") from e
-    
+
     @classmethod
     def for_provider(cls, provider: str):
         return cls()
