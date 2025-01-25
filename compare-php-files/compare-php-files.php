@@ -60,7 +60,7 @@ function comparePhpFiles(string $file1, string $file2): bool
 
 // Usage
 if ($argc !== 3) {
-    echo "Usage: php compare_php_files.php <file1> <file2>\n";
+    echo "Usage: php compare-php-files.php <file1> <file2>\n";
     exit(1);
 }
 
