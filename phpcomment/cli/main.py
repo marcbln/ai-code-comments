@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Optional
 from rich.console import Console
 from ..core.processor import process_php_file
-from ..utils.error_handler import handle_error
-from ..utils.output import print_success, print_info
+from ..utils.error_handler import handle_errors
+from ..utils.output import print_success
 
 app = typer.Typer(help="Automated PHP documentation tool")
 console = Console()
@@ -30,7 +30,7 @@ def comment(
         result = process_php_file(file_path, dry_run=dry_run)
         
         if dry_run:
-            print_info("\n[DRY RUN MODE] Proposed changes:\n")
+            console.print("\n[DRY RUN MODE] Proposed changes:\n")
             console.print(result)
         else:
             print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
