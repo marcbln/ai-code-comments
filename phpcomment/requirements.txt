@@ -1,9 +1,0 @@
-# Core dependencies
-typer>=0.9.0
-rich>=13.0.0
-python-dotenv>=1.0.0
-requests>=2.31.0
-
-# Dev dependencies
-pytest>=7.0.0
-mypy>=1.0.0

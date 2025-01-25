@@ -33,6 +33,10 @@ class defaultModel
                 /**
                  * Handles setting content items based on POST data.
                  * Updates the user's default content items and saves them to the database.
+                 * 
+                 * @global object $auth Authentication object
+                 * @return void
+                 * @throws \Exception Potential database exception from userModel::update_user
                  */
                 case 'set_content_items':
                     // xxxx Controller::init_site_model('user');
@@ -64,6 +68,10 @@ class defaultModel
                 /**
                  * Handles sorting content items based on POST data.
                  * Updates the position of content items and saves the new order to the database.
+                 * 
+                 * @global object $auth Authentication object
+                 * @return void
+                 * @throws \Exception Potential database exception from userModel::update_user
                  */
                 case 'sort_content_items':
                     // xxxx Controller::init_site_model('user');
