@@ -66,7 +66,7 @@ PHP code:
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are a PHP documentation assistant. Only add PHPDoc comments and section markers."
+                            "content": "You are a PHP documentation expert. Add complete PHPDoc blocks and section comments."
                         },
                         {"role": "user", "content": prompt}
                     ],
