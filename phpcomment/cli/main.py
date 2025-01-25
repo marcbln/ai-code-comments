@@ -9,7 +9,10 @@ from ..core.processor import process_php_file
 from ..utils.error_handler import handle_errors
 from ..utils.output import print_success
 
-app = typer.Typer(help="Automated PHP documentation tool")
+app = typer.Typer(
+    help="Automated PHP documentation tool",
+    context_settings={"help_option_names": ["-h", "--help"]}
+)
 console = Console()
 
 @app.command()
