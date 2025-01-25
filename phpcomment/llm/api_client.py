@@ -17,10 +17,10 @@ class LLMClient:
             raise ValueError("Missing LLM API key - set OPENROUTER_API_KEY environment variable")
         
         prompt = f"""Analyze this PHP code and:
-1. Add missing PHPDoc blocks
-2. Insert section dividers with '// ----'
-3. Keep ALL original code except documentation
-4. Wrap response between ||CODE_START|| and ||CODE_END||
+- Add missing PHPDoc blocks
+- Insert section dividers with '// ----'
+- Keep ALL original code except documentation
+- Wrap response between ||CODE_START|| and ||CODE_END||
 
 PHP code:
 {php_code}"""
