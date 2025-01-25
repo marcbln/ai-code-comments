@@ -10,7 +10,7 @@ def process_php_file(file_path: Path, dry_run: bool = False) -> Optional[str]:
     """Orchestrate the processing of a PHP file"""
     # TODO: Implement processing pipeline
     # 1. Read PHP file
-    # 2. Generate documentation
-    # 3. Validate modifications
-    # 4. Output results
+    # 2. Let LLM generate php file with improved documentation
+    # 3. validation the returned file (no changes on the code are allowed, only comments [and whitespace])
+    # 4. Output results as a diff to the console or write it to the original file
     return None

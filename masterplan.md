@@ -33,7 +33,7 @@ A CLI utility that intelligently adds PHPDoc docblocks and section comments (`//
 ### Frameworks and Libraries
 - **Typer**: For building the CLI with type hints for arguments/options.
 - **rich**: For colorful and user-friendly terminal output.
-- **requests**: For making API calls to the LLM (e.g., OpenRouter, Deepseek).
+- **requests**: For making API calls to the LLM (using openrouter with `openrouter/deepseek/deepseek-r1`).
 - **nikic/PHP-Parser**: For parsing and comparing PHP files during validation.
 
 ### Python Conventions
