@@ -39,13 +39,20 @@ PHP code:
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "HTTP-Referer": "https://github.com/your-repo",  # Required by OpenRouter
-                    "X-Title": "PHPComment"  # Identify your app
+                    "Referer": "https://yourdomain.com",  # Required by OpenRouter
+                    "X-Title": "PHPComment/1.0"  # Identify your app with version
                 },
                 json={
-                    "model": "deepseek/deepseek-coder-33b-instruct",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.2
+                    "model": "deepseek-ai/deepseek-coder-33b-instruct",  # Corrected model name
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "You are a PHP documentation assistant. Only add PHPDoc comments and section markers."
+                        },
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.2,
+                    "max_tokens": 4000
                 },
                 timeout=30
             )
