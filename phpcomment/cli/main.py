@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 from rich.console import Console
 from ..core.processor import process_php_file
-from ..utils.error_handler import handle_errors
+from ..utils.error_handler import handle_error
 from ..utils.output import print_success
 
 app = typer.Typer(
@@ -43,7 +43,7 @@ def comment(
                 console.print(result)
                 
     except Exception as e:
-        handle_errors(e, verbose=verbose)
+        handle_error(e, verbose=verbose)
 
 def main():
     app()

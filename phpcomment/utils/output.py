@@ -20,3 +20,7 @@ def print_success(message: str) -> None:
 def print_error(message: str) -> None:
     """Display error message with rich formatting"""
     console.print(f"✗ {message}", style="error")
+
+def print_warning(message: str) -> None:
+    """Display warning message with rich formatting"""
+    console.print(f"⚠️ {message}", style="warning")
