@@ -30,6 +30,10 @@ class defaultModel
                 // ------------------------------------
                 // Set content items case
                 // ------------------------------------
+                /**
+                 * Handles setting content items based on POST data.
+                 * Updates the user's default content items and saves them to the database.
+                 */
                 case 'set_content_items':
                     // xxxx Controller::init_site_model('user');
                     $my_items = $auth->getIdentity()->default_content_items;
@@ -57,6 +61,10 @@ class defaultModel
                 // ------------------------------------
                 // Sort content items case
                 // ------------------------------------
+                /**
+                 * Handles sorting content items based on POST data.
+                 * Updates the position of content items and saves the new order to the database.
+                 */
                 case 'sort_content_items':
                     // xxxx Controller::init_site_model('user');
                     $my_items = $auth->getIdentity()->default_content_items;

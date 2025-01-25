@@ -17,7 +17,7 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
         if verbose:
             print(f"⏳ Analyzing {len(originalCode)} characters...")
             
-        modifiedCode = LLMClient(model=model).improveDocumentation(originalCode, verbose=verbose)
+        modifiedCode = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, verbose=verbose)
         
         if verbose:
             print(f"✅ Analysis completed in {time.time() - start_time:.1f}s")
