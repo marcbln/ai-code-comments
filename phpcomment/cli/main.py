@@ -19,7 +19,12 @@ console = Console()
 def comment(
     file_path: Path = typer.Argument(..., help="Path to PHP file to document", exists=True),
     dry_run: bool = typer.Option(False, "--dry-run", help="Preview changes without modifying files"),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed processing information")
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed processing information"),
+    model: str = typer.Option(
+        "openrouter/qwen/qwen-2.5-coder-32b-instruct",
+        help="Model to use for processing (openrouter/... or deepseek/...)",
+        show_default=True
+    )
 ):
     """
     Add PHPDoc comments and section markers to a PHP file
@@ -31,7 +36,7 @@ def comment(
     """
     try:
         with console.status("[bold green]Processing PHP file...", spinner="dots"):
-            result = process_php_file(file_path, dry_run=dry_run, verbose=verbose)
+            result = process_php_file(file_path, dry_run=dry_run, verbose=verbose, model=model)
             console.print(f"✅ [green]Processed {file_path.name} in", end="")
         
         if dry_run:

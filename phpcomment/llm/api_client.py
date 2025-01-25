@@ -9,17 +9,28 @@ from typing import Optional
 class LLMClient:
     """Handle LLM API communication for documentation generation"""
     
-    def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
-        self.model = 'deepseek/deepseek-r1'
+    def __init__(self, model: str, api_key: Optional[str] = None):
+        self.model = model
+        self.provider = "openrouter" if model.startswith("openrouter/") else "deepseek"
+        
+        if self.provider == "openrouter":
+            self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
+            self.base_url = "https://openrouter.ai/api/v1"
+            key_hint = "OPENROUTER_API_KEY"
+            key_prefix = "sk-"
+        else:
+            self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY")
+            self.base_url = "https://api.deepseek.com/v1"
+            key_hint = "DEEPSEEK_API_KEY"
+            key_prefix = "sk-"
+
         if not self.api_key:
             raise ValueError(
-                "OpenRouter API key required. "
-                "Set OPENROUTER_API_KEY environment variable or visit "
-                "https://openrouter.ai/keys to get one."
+                f"{self.provider.capitalize()} API key required. "
+                f"Set {key_hint} environment variable."
             )
-        if not self.api_key.startswith("sk-"):
-            raise ValueError("Invalid API key format. Keys should start with 'sk-'")
+        if not self.api_key.startswith(key_prefix):
+            raise ValueError(f"Invalid {self.provider} API key format. Keys should start with '{key_prefix}'")
     
     def improveDocumentation(self, php_code: str, verbose: bool = False) -> str:
         """Send PHP code to LLM and return documented version"""
@@ -42,11 +53,13 @@ PHP code:
                 print(f"🚀 Sending request to {self.model}...")
             
             response = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
+                f"{self.base_url}/chat/completions",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "Referer": "https://yourdomain.com",  # Required by OpenRouter
-                    "X-Title": "PHPComment/1.0"  # Identify your app with version
+                    "Referer": "https://yourdomain.com" if self.provider == "openrouter" else "",
+                    "X-Title": "PHPComment/1.0",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
                 json={
                     "model": self.model,
@@ -69,15 +82,17 @@ PHP code:
                 print(f"📥 Received response in {response_time:.1f}s")
             
             content = response.json()['choices'][0]['message']['content']
-            if '||CODE_START||' not in content:
-                return php_code  # Fallback if format incorrect
+            if '||CODE_START||' not in content and '<?php' in content:
+                return content
                 
-            return content.split('||CODE_START||')[1].split('||CODE_END||')[0].strip()
+            return content.split('||CODE_START||')[-1].split('||CODE_END||')[0].strip()
             
         except Exception as e:
             debug_info = f"""
             API Error Details:
-            - Api Key: {self.api_key[:10]}...
+            - Model: {self.model}
+            - Provider: {self.provider}
+            - API Key: {self.api_key[:10]}...{self.api_key[-4:]}
             - Code Length: {len(php_code)} chars
             - Prompt Length: {len(prompt)} chars
             """
