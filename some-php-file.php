@@ -5,39 +5,31 @@ use App\ModelMigrated\userModel;
 /**
  * Class defaultModel
  *
- * Handles default model actions related to content items management.
+ * This class handles default model operations, particularly related to content items.
  */
 class defaultModel
 {
-    // ------------------------------------
-    // Core functionality
-    // ------------------------------------
-    
+    // ----
+    // Action Handling Section
+    // ----
+
     /**
-     * Processes POST actions for content item configuration
-     * 
-     * @global object $translate Translation object (unused in current implementation)
+     * Checks and processes actions based on POST data.
+     *
+     * This method handles two primary actions:
+     * - 'set_content_items': Updates the default content items for the authenticated user.
+     * - 'sort_content_items': Sorts the default content items based on the provided order.
+     *
+     * @global object $translate Translation object
      * @global object $auth Authentication object
-     * 
-     * @return bool Returns false if no action processed
-     * @throws \Exception Potential database exception from userModel::update_user
+     *
+     * @return bool Returns false if no action is processed, otherwise terminates with JSON response.
      */
     static function check_action()
     {
         global $translate, $auth;
         if (isset($_POST['action'])) {
             switch ($_POST['action']) {
-                // ------------------------------------
-                // Set content items case
-                // ------------------------------------
-                /**
-                 * Handles setting content items based on POST data.
-                 * Updates the user's default content items and saves them to the database.
-                 * 
-                 * @global object $auth Authentication object
-                 * @return void
-                 * @throws \Exception Potential database exception from userModel::update_user
-                 */
                 case 'set_content_items':
                     // xxxx Controller::init_site_model('user');
                     $my_items = $auth->getIdentity()->default_content_items;
@@ -62,17 +54,6 @@ class defaultModel
                     die();
                     break;
 
-                // ------------------------------------
-                // Sort content items case
-                // ------------------------------------
-                /**
-                 * Handles sorting content items based on POST data.
-                 * Updates the position of content items and saves the new order to the database.
-                 * 
-                 * @global object $auth Authentication object
-                 * @return void
-                 * @throws \Exception Potential database exception from userModel::update_user
-                 */
                 case 'sort_content_items':
                     // xxxx Controller::init_site_model('user');
                     $my_items = $auth->getIdentity()->default_content_items;

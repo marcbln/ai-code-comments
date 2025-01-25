@@ -74,8 +74,28 @@ class OpenAIApiAdapter(LLMProvider):
         self.base_url = base_url
 
     def get_api_credentials(self, api_key: Optional[str]):
-        api_key = api_key or os.getenv("OPENAI_API_KEY")
-        key_hint = "OPENAI_API_KEY"
+        """Get API credentials based on configuration"""
+        credentials_config = {
+            "deepseek": {
+                "env_key": "DEEPSEEK_API_KEY",
+                "domain": "deepseek.com"
+            },
+            "openai": {
+                "env_key": "OPENAI_API_KEY",
+                "domain": "api.openai.com"
+            }
+        }
+
+        # Determine provider based on base_url
+        provider = next(
+            (k for k, v in credentials_config.items() 
+             if self.base_url and v["domain"] in self.base_url),
+            "openai"  # Default to OpenAI if no match
+        )
+        
+        config = credentials_config[provider]
+        api_key = api_key or os.getenv(config["env_key"])
+        key_hint = config["env_key"]
         key_prefix = "sk-"
         self.client = OpenAI(
             api_key=api_key,
