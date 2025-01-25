@@ -2,6 +2,7 @@
 # File: phpcomment/llm/api_client.py
 
 import os
+import time
 import requests
 from typing import Optional
 
@@ -20,7 +21,7 @@ class LLMClient:
         if not self.api_key.startswith("sk-"):
             raise ValueError("Invalid API key format. Keys should start with 'sk-'")
     
-    def improveDocumentation(self, php_code: str) -> str:
+    def improveDocumentation(self, php_code: str, verbose: bool = False) -> str:
         """Send PHP code to LLM and return documented version"""
         
         prompt = f"""Analyze this PHP code and:
@@ -36,6 +37,10 @@ PHP code:
             if len(prompt) > 12000:  # Add size validation
                 raise ValueError("Code too large for LLM processing (max 12k characters)")
                 
+            api_start = time.time()
+            if verbose:
+                print(f"🚀 Sending request to {self.model}...")
+            
             response = requests.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
@@ -58,6 +63,10 @@ PHP code:
                 timeout=30
             )
             response.raise_for_status()
+            
+            response_time = time.time() - api_start
+            if verbose:
+                print(f"📥 Received response in {response_time:.1f}s")
             
             content = response.json()['choices'][0]['message']['content']
             if '||CODE_START||' not in content:

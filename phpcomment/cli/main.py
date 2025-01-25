@@ -30,7 +30,9 @@ def comment(
     - Preserves original code structure
     """
     try:
-        result = process_php_file(file_path, dry_run=dry_run)
+        with console.status("[bold green]Processing PHP file...", spinner="dots"):
+            result = process_php_file(file_path, dry_run=dry_run, verbose=verbose)
+            console.print(f"✅ [green]Processed {file_path.name} in", end="")
         
         if dry_run:
             console.print("\n[DRY RUN MODE] Proposed changes:\n")

@@ -6,12 +6,21 @@ from pathlib import Path
 from typing import Optional
 from ..llm.api_client import LLMClient
 
-def process_php_file(file_path: Path, dry_run: bool = False) -> Optional[str]:
+import time
+
+def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = False) -> Optional[str]:
     """Process PHP file through documentation pipeline"""
     originalCode = file_path.read_text()
     
     try:
-        modifiedCode = LLMClient().improveDocumentation(originalCode)
+        start_time = time.time()
+        if verbose:
+            print(f"⏳ Analyzing {len(originalCode)} characters...")
+            
+        modifiedCode = LLMClient().improveDocumentation(originalCode, verbose=verbose)
+        
+        if verbose:
+            print(f"✅ Analysis completed in {time.time() - start_time:.1f}s")
         
         if len(originalCode.splitlines()) > 100:
             print(f"Warning: Processed large file ({len(originalCode.splitlines())} lines) in chunks")
