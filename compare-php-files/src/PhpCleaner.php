@@ -3,12 +3,10 @@
 namespace App;
 
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitor\CloningVisitor;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PhpParser\PhpVersion;
 use PhpParser\PrettyPrinter\Standard;
-use PhpParser\Comment;
 
 class PhpCleaner
 {

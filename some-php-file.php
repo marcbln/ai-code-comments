@@ -1,19 +1,57 @@
 <?php
 
-// ---- Function Definitions ----
+namespace App;
+
+use PhpParser\NodeVisitorAbstract;
 
 /**
- * Checks if a specific action should be performed.
- *
- * This function is designed to determine whether a particular action
- * needs to be executed. Currently, it always returns false, indicating
- * that no action should be performed.
- *
- * @return bool Returns false, indicating no action should be performed.
+ * Class MyNodeVisitor
+ * This class extends NodeVisitorAbstract and is used to traverse and modify PHP nodes.
+ * Specifically, it removes comments from nodes during the traversal process.
  */
-function check_action()
+class MyNodeVisitor extends NodeVisitorAbstract
 {
-    return false;
-}
+    /**
+     * Called before the traversal of a node tree begins.
+     *
+     * @param array $nodes The array of nodes to be traversed.
+     */
+    public function beforeTraverse(array $nodes)
+    {
+        return null;
+    }
 
-?>
+    /**
+     * Called when entering a node.
+     *
+     * @param \PhpParser\Node $node The node being entered.
+     */
+    public function enterNode(\PhpParser\Node $node)
+    {
+        // ---- Check if the node has comments and remove them
+        if (isset($node->getAttributes()['comments'])) {
+            $node->setAttribute('comments', null);
+        }
+        return null;
+    }
+
+    /**
+     * Called when leaving a node.
+     *
+     * @param \PhpParser\Node $node The node being left.
+     */
+    public function leaveNode(\PhpParser\Node $node)
+    {
+        return null;
+    }
+
+    /**
+     * Called after the traversal of a node tree is complete.
+     *
+     * @param array $nodes The array of nodes that were traversed.
+     */
+    public function afterTraverse(array $nodes)
+    {
+        return null;
+    }
+}

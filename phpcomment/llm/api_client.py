@@ -196,13 +196,15 @@ class LLMClient:
     def improveDocumentation(self, php_code: str, verbose: bool = False) -> str:
         """Send PHP code to LLM and return documented version"""
 
-        prompt = f"""Analyze this PHP code and:
-- Add missing PHPDoc blocks
-- Insert section dividers with '// ----'
-- Keep ALL original code except documentation
+        prompt = f"""Analyze the PHP_CODE and apply following rules:
+- Each class should have a docblock explaining what the class does. If a docblock already exists, try to improve it.
+- Each method should have a docblock explaining what the method does, except setters and getters.
+- Do NOT add redundant PHPDoc tags to docblocks, e.g. `@return void` or `@param string $foo` without any additional information.
+- inside functions use section comments, starting with `// ----`, explaining key parts of the code, if needed.
+- Keep ALL original code except documentation.
 - Wrap response between ||CODE_START|| and ||CODE_END||
 
-PHP code:
+PHP_CODE:
 {php_code}"""
 
         try:
