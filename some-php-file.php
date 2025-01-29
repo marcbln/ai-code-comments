@@ -4,32 +4,34 @@ use App\ModelMigrated\userModel;
 
 /**
  * Class defaultModel
- *
- * This class handles default model operations, particularly related to content items.
+ * Handles default model actions related to user content items.
  */
 class defaultModel
 {
     // ----
-    // Action Handling Section
-    // ----
 
     /**
-     * Checks and processes actions based on POST data.
+     * Checks the action from POST request and processes accordingly.
      *
-     * This method handles two primary actions:
-     * - 'set_content_items': Updates the default content items for the authenticated user.
-     * - 'sort_content_items': Sorts the default content items based on the provided order.
+     * This method checks if an 'action' is set in the POST request and
+     * processes it based on the action type. It supports two actions:
+     * 'set_content_items' and 'sort_content_items'.
      *
-     * @global object $translate Translation object
-     * @global object $auth Authentication object
-     *
-     * @return bool Returns false if no action is processed, otherwise terminates with JSON response.
+     * @return bool Returns false if no action is set or processed.
      */
     static function check_action()
     {
         global $translate, $auth;
         if (isset($_POST['action'])) {
             switch ($_POST['action']) {
+                // ----
+
+                /**
+                 * Action to set content items.
+                 *
+                 * This action processes the 'active' content items from POST request,
+                 * updates their size and position, and saves the changes to the user model.
+                 */
                 case 'set_content_items':
                     // xxxx Controller::init_site_model('user');
                     $my_items = $auth->getIdentity()->default_content_items;
@@ -54,6 +56,14 @@ class defaultModel
                     die();
                     break;
 
+                // ----
+
+                /**
+                 * Action to sort content items.
+                 *
+                 * This action processes the 'content_ids' from POST request,
+                 * updates their position, and saves the changes to the user model.
+                 */
                 case 'sort_content_items':
                     // xxxx Controller::init_site_model('user');
                     $my_items = $auth->getIdentity()->default_content_items;

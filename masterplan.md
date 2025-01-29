@@ -28,14 +28,6 @@ A CLI utility that intelligently adds PHPDoc docblocks and section comments (`//
 
 ---
 
-## High-Level Technical Stack
-### Python Frameworks and Libraries
-- **Typer**: For building the CLI with type hints for arguments/options.
-- **rich**: For colorful and user-friendly terminal output.
-- **requests**: For making API calls to the LLM (using openrouter with `openrouter/deepseek/deepseek-r1`).
-
----
-
 ## User Interface Design Principles
 1. **CLI-first**: The tool is designed for use in the terminal.
 2. **Verbose by default**: Show progress and actions taken during execution.
@@ -45,8 +37,8 @@ A CLI utility that intelligently adds PHPDoc docblocks and section comments (`//
 ---
 
 ## Security Considerations
-1. **API key management**: Users provide their LLM API key via environment variables.
-3. **Code integrity**: Use `nikic/PHP-Parser` to validate that only comments are modified.
+- **API key management**: Users provide their LLM API key via environment variables.
+- **Code integrity**: Use external commands to validate code integrity.
 
 ---
 
