@@ -2,76 +2,49 @@
 
 require 'vendor/autoload.php';
 
-use PhpParser\Parser;
-use PhpParser\ParserFactory;
-use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitor\CloningVisitor;
-use PhpParser\PhpVersion;
-use PhpParser\PrettyPrinter\Standard;
-use PhpParser\Comment;
+use App\PhpCleaner;
 
-function removeCommentsAndWhitespace(array $stmts): array
+
+function main(string $file1, string $file2, bool $debug)
 {
-    $traverser = new NodeTraverser;
-    $traverser->addVisitor(new CloningVisitor()); // Clone nodes to avoid modifying the original AST
+    $cleaner = new PhpCleaner();
 
-    // Remove comments
-    foreach ($stmts as $stmt) {
-        $stmt->setAttribute('comments', []);
+    $code1 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file1));
+    $code2 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file2));
+
+    $equal = $code1 === $code2;
+
+    if ($debug && !$equal) {
+        echo "=== File 1 ($file1) ===\n";
+        echo $code1 . "\n\n";
+        echo "=== File 2 ($file2) ===\n";
+        echo $code2 . "\n\n";
+
+        // Show diff using similar_text
+        similar_text($code1, $code2, $percent);
+        echo sprintf("Similarity: %.2f%%\n", $percent);
     }
 
-    // Normalize whitespace by pretty-printing and re-parsing
-    $prettyPrinter = new Standard();
-    $code = $prettyPrinter->prettyPrintFile($stmts);
-
-    return createParser()->parse($code);
+    return $equal;
 }
 
-function createParser(): Parser
-{
-    return (new ParserFactory)->createForVersion(PhpVersion::fromString('8.3'));
-}
+// Parse command line arguments
+$options = getopt('', ['debug']);
+$debug = isset($options['debug']);
 
+// Remove the processed options from argv
+$nonOptionArgv = array_values(array_filter($argv, function ($arg) {
+    return !str_starts_with($arg, '--');
+}));
 
-function comparePhpFiles(string $file1, string $file2): bool
-{
-    $parser = createParser();
-
-    // Parse the first file
-    $stmts1 = $parser->parse(file_get_contents($file1));
-    if ($stmts1 === null) {
-        throw new RuntimeException("Failed to parse $file1");
-    }
-
-    // Parse the second file
-    $stmts2 = $parser->parse(file_get_contents($file2));
-    if ($stmts2 === null) {
-        throw new RuntimeException("Failed to parse $file2");
-    }
-
-    // Remove comments and whitespace from both ASTs
-    $stmts1 = removeCommentsAndWhitespace($stmts1);
-    $stmts2 = removeCommentsAndWhitespace($stmts2);
-
-    // Compare the ASTs
-    $prettyPrinter = new Standard();
-    return $prettyPrinter->prettyPrintFile($stmts1) === $prettyPrinter->prettyPrintFile($stmts2);
-}
-
-// Usage
-if ($argc !== 3) {
-    echo "Usage: php compare-php-files.php <file1> <file2>\n";
+if (count($nonOptionArgv) !== 3) {
+    echo "Usage: php compare-php-files.php [--debug] <file1> <file2>\n";
     exit(1);
 }
 
-$file1 = $argv[1];
-$file2 = $argv[2];
+$file1 = $nonOptionArgv[1];
+$file2 = $nonOptionArgv[2];
 
-if (!file_exists($file1) || !file_exists($file2)) {
-    echo "Error: One or both files do not exist.\n";
-    exit(1);
-}
-
-echo comparePhpFiles($file1, $file2) ? 'true' : 'false';
+echo main($file1, $file2, $debug) ? 'true' : 'false';
 echo "\n";
 
