@@ -24,6 +24,7 @@ class LLMProvider(ABC):
 
 class OpenRouterApiAdapter(LLMProvider):
     def __init__(self, base_url: Optional[str] = None):
+        self.max_tokens = 100000
         self.base_url = base_url or "https://openrouter.ai/api/v1"
 
     def get_api_credentials(self, api_key: Optional[str]):
@@ -43,7 +44,7 @@ class OpenRouterApiAdapter(LLMProvider):
             "model": model,
             "messages": messages,
             "temperature": 0.2,
-            "max_tokens": 4000
+            "max_tokens": self.max_tokens
         }
 
         return data, headers
@@ -70,6 +71,7 @@ class OpenRouterApiAdapter(LLMProvider):
 
 class OpenAIApiAdapter(LLMProvider):
     def __init__(self, base_url: Optional[str] = None):
+        self.max_tokens = 8000 # 4000
         self.client = None
         self.base_url = base_url
 
@@ -113,7 +115,7 @@ class OpenAIApiAdapter(LLMProvider):
                 model=model,
                 messages=messages,
                 temperature=0.2,
-                max_tokens=4000
+                max_tokens=self.max_tokens
             )
             return response.choices[0].message.content
         except APIError as e:
@@ -208,13 +210,13 @@ PHP_CODE:
 {php_code}"""
 
         try:
-            if len(prompt) > 12000:  # Add size validation
-                raise ValueError("Code too large for LLM processing (max 12k characters)")
+            # if len(prompt) > 12000:  # Add size validation
+            #     raise ValueError("Code too large for LLM processing (max 12k characters)")
 
             messages = [
                 {
                     "role": "system",
-                    "content": "You are a PHP documentation expert. Add complete PHPDoc blocks and section comments."
+                    "content": "You are a senior PHP developer with much experience with legacy codebases. You are tasked with improving the documentation of a PHP codebase."
                 },
                 {
                     "role": "user",

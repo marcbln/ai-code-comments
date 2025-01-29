@@ -81,12 +81,14 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
         if verbose:
             print(f"✅ Analysis completed in {time.time() - start_time:.1f}s")
         
-        if len(originalCode.splitlines()) > 100:
-            print(f"Warning: Processed large file ({len(originalCode.splitlines())} lines) in chunks")
-        
+        # if len(originalCode.splitlines()) > 100:
+        #     print(f"Warning: Processed large file ({len(originalCode.splitlines())} lines) in chunks")
         # Validate the changes
         is_valid, tmp_path = validate_php_code(file_path, modifiedCode, verbose)
         if not is_valid:
+
+            print(f"\n\nmodified code:\n\n{modifiedCode}")
+
             raise RuntimeError(
                 f"Failed to process {file_path.name}: Code validation failed. "
                 "The changes would alter the code functionality."
