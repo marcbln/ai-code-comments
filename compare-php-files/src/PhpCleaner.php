@@ -36,7 +36,7 @@ class PhpCleaner
         $prettyPrinter = new Standard();
         $newCode = $prettyPrinter->prettyPrintFile($ast);
 
-        return $newCode;
+        return trim($newCode);
     }
 
 }
