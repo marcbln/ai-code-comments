@@ -24,7 +24,7 @@ class LLMProvider(ABC):
 
 class OpenRouterApiAdapter(LLMProvider):
     def __init__(self, base_url: Optional[str] = None):
-        self.max_tokens = 100000
+        self.max_tokens = 1000000
         self.base_url = base_url or "https://openrouter.ai/api/v1"
 
     def get_api_credentials(self, api_key: Optional[str]):
@@ -44,7 +44,7 @@ class OpenRouterApiAdapter(LLMProvider):
             "model": model,
             "messages": messages,
             "temperature": 0.2,
-            "max_tokens": self.max_tokens
+#            "max_tokens": self.max_tokens
         }
 
         return data, headers
@@ -207,6 +207,7 @@ class LLMClient:
 - inside functions use section comments, starting with `// ----`, explaining key parts of the code, if needed.
 - in big switch-case statements, add a section comment (starting with // ----) for each case.
 - Keep ALL original code except documentation.
+- NEVER replace code with comments like "// ... rest of the code remains unchanged ..."
 - Wrap response between ||CODE_START|| and ||CODE_END||
 
 PHP_CODE:
