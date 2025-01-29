@@ -198,11 +198,14 @@ class LLMClient:
     def improveDocumentation(self, php_code: str, verbose: bool = False) -> str:
         """Send PHP code to LLM and return documented version"""
 
-        prompt = f"""Analyze the PHP_CODE and apply following rules:
+        systemPrompt = "You are a senior PHP developer. You are tasked to add or improve comments of a large legacy php codebase."
+
+        userPrompt = f"""Analyze the PHP_CODE and apply following rules:
 - Each class should have a docblock explaining what the class does. If a docblock already exists, try to improve it.
 - Each method should have a docblock explaining what the method does, except setters and getters.
 - Do NOT add redundant PHPDoc tags to docblocks, e.g. `@return void` or `@param string $foo` without any additional information.
 - inside functions use section comments, starting with `// ----`, explaining key parts of the code, if needed.
+- in big switch-case statements, add a section comment (starting with // ----) for each case.
 - Keep ALL original code except documentation.
 - Wrap response between ||CODE_START|| and ||CODE_END||
 
@@ -216,11 +219,11 @@ PHP_CODE:
             messages = [
                 {
                     "role": "system",
-                    "content": "You are a senior PHP developer with much experience with legacy codebases. You are tasked with improving the documentation of a PHP codebase."
+                    "content": systemPrompt
                 },
                 {
                     "role": "user",
-                    "content": prompt
+                    "content": userPrompt
                 }
             ]
             # Get provider-specific request configuration
@@ -257,6 +260,6 @@ PHP_CODE:
             - Provider: {self.provider}
             - API Key: {self.api_key[:10]}...{self.api_key[-4:]}
             - Code Length: {len(php_code)} chars
-            - Prompt Length: {len(prompt)} chars
+            - Prompt Length: {len(userPrompt)} chars
             """
             raise RuntimeError(f"LLM API failed: {str(e)}\n{debug_info}") from e
