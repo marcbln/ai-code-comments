@@ -1,7 +1,9 @@
 # ---- LLM API Integration ----
 import json
 import os
+import re
 import time
+from textwrap import dedent
 from typing import Optional, Dict, Type
 from abc import ABC, abstractmethod
 import requests
@@ -195,23 +197,44 @@ class LLMClient:
         if not self.api_key.startswith(key_prefix):
             raise ValueError(f"Invalid {self.provider_name} API key format. Should start with '{key_prefix}'")
 
-    def improveDocumentation(self, php_code: str, verbose: bool = False) -> str:
+
+    def strip_code_block_markers(self, content: str) -> str:
+        # Remove code block markers like ```php or ```diff from start/end
+        content = re.sub(r'^```\w*\n', '', content)  # Remove opening markers
+        content = re.sub(r'\n```$', '', content)  # Remove closing markers
+        return content
+
+
+    def improveDocumentation(self, php_code: str, diff_format: bool, verbose: bool = False) -> str:
         """Send PHP code to LLM and return documented version"""
 
         systemPrompt = "You are a senior PHP developer. You are tasked to add or improve comments of a large legacy php codebase."
 
-        userPrompt = f"""Analyze the PHP_CODE and apply following rules:
-- Each class should have a docblock explaining what the class does. If a docblock already exists, try to improve it.
-- Each method should have a docblock explaining what the method does, except setters and getters.
-- Do NOT add redundant PHPDoc tags to docblocks, e.g. `@return void` or `@param string $foo` without any additional information.
-- inside functions use section comments, starting with `// ----`, explaining key parts of the code, if needed.
-- in big switch-case statements, add a section comment (starting with // ----) for each case.
-- Keep ALL original code except documentation.
-- NEVER replace code with comments like "// ... rest of the code remains unchanged ..."
-- Wrap response between ||CODE_START|| and ||CODE_END||
+        userPrompt = dedent(f"""
+            Analyze the PHP_CODE and apply following rules:
+            
+            - Each class should have a docblock explaining what the class does. If a docblock already exists, try to improve it.
+            - Each method should have a docblock explaining what the method does, except setters and getters.
+            - Do NOT add redundant PHPDoc tags to docblocks, e.g. `@return void` or `@param string $foo` without any additional information.
+            - inside functions use section comments, starting with `// ----`, explaining key parts of the code, if needed.
+            - in big switch-case statements, add a section comment (starting with // ----) for each case.
+            - Keep ALL original code except documentation.
+            - NEVER replace code with comments like "// ... rest of the code remains unchanged ..."
+            """)
+        
+        if diff_format:
+            userPrompt += "- Respond ONLY with a unified diff patch. Format the response as a unified diff patch with 3-line context."
+        else:
+            userPrompt += "- Response ONLY with full modified source code."
 
+        userPrompt += dedent(f"""
+        
 PHP_CODE:
-{php_code}"""
+
+{php_code}
+        """)
+
+        print(f"LLM Prompt:\n{userPrompt}")
 
         try:
             # if len(prompt) > 12000:  # Add size validation
@@ -247,10 +270,9 @@ PHP_CODE:
 
             content = self.provider.create_completion(self.model, messages, verbose)
 
-            if '||CODE_START||' not in content and '<?php' in content:
-                return content
+            # In the original code:
+            return self.strip_code_block_markers(content)
 
-            return content.split('||CODE_START||')[-1].split('||CODE_END||')[0].strip()
 
         except Exception as e:
             print(f"======= Error: {str(e)} =======")

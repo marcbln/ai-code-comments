@@ -67,7 +67,9 @@ def validate_php_code(original_file: Path, modified_code: str, verbose: bool = F
         print(f"Validation error: {str(e)}")
         return False, None
 
-def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = False, model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct") -> Optional[str]:
+def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = False, 
+                    model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
+                    diff_format: bool = False) -> Optional[str]:
     """Process PHP file through documentation pipeline"""
     originalCode = file_path.read_text()
     
@@ -76,13 +78,42 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
         if verbose:
             print(f"⏳ Analyzing {len(originalCode)} characters...")
             
-        modifiedCode = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, verbose=verbose)
-        
+        modifiedCode = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, diff_format=diff_format, verbose=verbose)
+        print(f">>>> diff_format: {diff_format}")
+        print(f">>>> modifiedCode:\n\n{modifiedCode}\n\n") # fixme
+
         if verbose:
-            print(f"✅ Analysis completed in {time.time() - start_time:.1f}s")
+            print(f"✅ LLM request completed in {time.time() - start_time:.1f}s ({len(modifiedCode)} characters)")
         
         # if len(originalCode.splitlines()) > 100:
         #     print(f"Warning: Processed large file ({len(originalCode.splitlines())} lines) in chunks")
+        # Handle diff format
+        if diff_format:
+            # Create patch file
+            patch_file = tempfile.NamedTemporaryFile(mode='w', suffix='.diff', delete=False)
+            patch_path = Path(patch_file.name)
+            patch_file.write(modifiedCode)
+            patch_file.close()
+
+            if verbose:
+                print(f"The LLM returned the following diff patch: {patch_path.name} ...")
+                print(modifiedCode)
+
+            # Apply patch
+            try:
+                subprocess.run(
+                    ['patch', '--quiet', str(file_path), str(patch_path)],
+                    check=True,
+                    capture_output=True
+                )
+            except subprocess.CalledProcessError as e:
+                raise RuntimeError(f"Failed to apply patch: {e.stderr.decode()}") from e
+            finally:
+                patch_path.unlink()
+            
+            # Read back patched file for validation
+            modifiedCode = file_path.read_text()
+        
         # Validate the changes
         is_valid, tmp_path = validate_php_code(file_path, modifiedCode, verbose)
         if not is_valid:
@@ -96,12 +127,20 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
 
         if not dry_run:
             if tmp_path and tmp_path.exists():
-                # Show diff of changes that will be applied
-                diff_result = subprocess.run(
-                    ['diff', '--color=always', str(file_path), str(tmp_path)],
-                    capture_output=True,
-                    text=True
-                )
+                # Handle diff output format
+                if diff_format:
+                    diff_result = subprocess.run(
+                        ['diff', '-u', '--color=always', str(file_path), str(tmp_path)],
+                        capture_output=True,
+                        text=True
+                    )
+                else:
+                    # Show standard diff of changes
+                    diff_result = subprocess.run(
+                        ['diff', '--color=always', str(file_path), str(tmp_path)],
+                        capture_output=True,
+                        text=True
+                    )
                 if diff_result.stdout or diff_result.stderr:
                     print("\n✅ Applied changes:")
                     print(diff_result.stdout or diff_result.stderr)
