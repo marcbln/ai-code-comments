@@ -78,12 +78,12 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
         if verbose:
             print(f"⏳ Analyzing {len(originalCode)} characters...")
             
-        modifiedCode = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, diff_format=diff_format, verbose=verbose)
+        llmResponse = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, diff_format=diff_format, verbose=verbose)
         print(f">>>> diff_format: {diff_format}")
-        print(f">>>> modifiedCode:\n\n{modifiedCode}\n\n") # fixme
+        print(f">>>> llmResponse:\n\n{llmResponse}\n\n") # fixme
 
         if verbose:
-            print(f"✅ LLM request completed in {time.time() - start_time:.1f}s ({len(modifiedCode)} characters)")
+            print(f"✅ LLM request completed in {time.time() - start_time:.1f}s ({len(llmResponse)} characters)")
         
         # if len(originalCode.splitlines()) > 100:
         #     print(f"Warning: Processed large file ({len(originalCode.splitlines())} lines) in chunks")
@@ -92,33 +92,36 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
             # Create patch file
             patch_file = tempfile.NamedTemporaryFile(mode='w', suffix='.diff', delete=False)
             patch_path = Path(patch_file.name)
-            patch_file.write(modifiedCode)
+            patch_file.write(llmResponse)
             patch_file.close()
 
             if verbose:
-                print(f"The LLM returned the following diff patch: {patch_path.name} ...")
-                print(modifiedCode)
+                print(f"The LLM returned the following diff patch: {patch_path.absolute()} ...")
+                # print(llmResponse)
 
             # Apply patch
             try:
+                cmd = ['patch', str(file_path), str(patch_path)]
+                if verbose:
+                    print(f"🔧 Applying patch: {' '.join(cmd)}")
                 subprocess.run(
-                    ['patch', '--quiet', str(file_path), str(patch_path)],
+                    cmd,
                     check=True,
                     capture_output=True
                 )
             except subprocess.CalledProcessError as e:
                 raise RuntimeError(f"Failed to apply patch: {e.stderr.decode()}") from e
-            finally:
-                patch_path.unlink()
+#            finally:
+#                patch_path.unlink()
             
             # Read back patched file for validation
-            modifiedCode = file_path.read_text()
+            llmResponse = file_path.read_text()
         
         # Validate the changes
-        is_valid, tmp_path = validate_php_code(file_path, modifiedCode, verbose)
+        is_valid, tmp_path = validate_php_code(file_path, llmResponse, verbose)
         if not is_valid:
 
-            print(f"\n\nmodified code:\n\n{modifiedCode}")
+            print(f"\n\nmodified code:\n\n{llmResponse}")
 
             raise RuntimeError(
                 f"Failed to process {file_path.name}: Code validation failed. "
@@ -155,7 +158,7 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
             
         # Only return the modified code in dry-run mode
         if dry_run:
-            return modifiedCode
+            return llmResponse
         return None
     except Exception as e:
         if "Code chunk too large" in str(e):
