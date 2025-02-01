@@ -8,6 +8,7 @@ from typing import Optional, Dict, Type
 from abc import ABC, abstractmethod
 import requests
 from openai import OpenAI, APIError
+from .prompts import DocumentationPrompts
 
 
 class LLMProvider(ABC):
@@ -208,7 +209,6 @@ class LLMClient:
     def improveDocumentation(self, php_code: str, diff_format: bool, verbose: bool = False) -> str:
         """Send PHP code to LLM and return documented version"""
 
-        from .prompts import DocumentationPrompts
         systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(php_code, diff_format)
 
         print(f"LLM Prompt:\n{userPrompt}")
