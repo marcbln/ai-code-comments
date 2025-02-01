@@ -67,9 +67,9 @@ def validate_php_code(original_file: Path, modified_code: str, verbose: bool = F
         print(f"Validation error: {str(e)}")
         return False, None
 
-def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = False, 
+def process_php_file(file_path: Path, verbose: bool = False, 
                     model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
-                    diff_format: bool = False) -> Optional[str]:
+                    diff_format: bool = False) -> None:
     """Process PHP file through documentation pipeline"""
     originalCode = file_path.read_text()
     
@@ -128,37 +128,33 @@ def process_php_file(file_path: Path, dry_run: bool = False, verbose: bool = Fal
                 "The changes would alter the code functionality."
             )
 
-        if not dry_run:
-            if tmp_path and tmp_path.exists():
-                # Handle diff output format
-                if diff_format:
-                    diff_result = subprocess.run(
-                        ['diff', '-u', '--color=always', str(file_path), str(tmp_path)],
-                        capture_output=True,
-                        text=True
-                    )
-                else:
-                    # Show standard diff of changes
-                    diff_result = subprocess.run(
-                        ['diff', '--color=always', str(file_path), str(tmp_path)],
-                        capture_output=True,
-                        text=True
-                    )
-                if diff_result.stdout or diff_result.stderr:
-                    print("\n✅ Applied changes:")
-                    print(diff_result.stdout or diff_result.stderr)
-                    # Copy the validated temporary file to the target location
-                    shutil.copy2(tmp_path, file_path)
-                else:
-                    print("\n⚠️ No changes were made to the file")
-                
-                tmp_path.unlink()  # Clean up temp file after successful copy
+        if tmp_path and tmp_path.exists():
+            # Handle diff output format
+            if diff_format:
+                diff_result = subprocess.run(
+                    ['diff', '-u', '--color=always', str(file_path), str(tmp_path)],
+                    capture_output=True,
+                    text=True
+                )
             else:
-                raise RuntimeError("Temporary file not found after validation")
+                # Show standard diff of changes
+                diff_result = subprocess.run(
+                    ['diff', '--color=always', str(file_path), str(tmp_path)],
+                    capture_output=True,
+                    text=True
+                )
+            if diff_result.stdout or diff_result.stderr:
+                print("\n✅ Applied changes:")
+                print(diff_result.stdout or diff_result.stderr)
+                # Copy the validated temporary file to the target location
+                shutil.copy2(tmp_path, file_path)
+            else:
+                print("\n⚠️ No changes were made to the file")
             
-        # Only return the modified code in dry-run mode
-        if dry_run:
-            return llmResponse
+            tmp_path.unlink()  # Clean up temp file after successful copy
+        else:
+            raise RuntimeError("Temporary file not found after validation")
+        
         return None
     except Exception as e:
         if "Code chunk too large" in str(e):

@@ -18,7 +18,6 @@ console = Console()
 @app.command()
 def comment(
     file_path: Path = typer.Argument(..., help="Path to PHP file to document", exists=True),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Preview changes without modifying files"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed processing information"),
     model: str = typer.Option(
         "openrouter/qwen/qwen-2.5-coder-32b-instruct",
@@ -40,13 +39,8 @@ def comment(
     """
     try:
         with console.status("[bold green]Processing PHP file...", spinner="dots"):
-            result = process_php_file(file_path, dry_run=dry_run, diff_format=diff_format, verbose=verbose, model=model)
+            result = process_php_file(file_path, diff_format=diff_format, verbose=verbose, model=model)
             console.print(f"✅ [green]Processed {file_path.name} in", end="")
-        
-        if dry_run:
-            console.print("\n[DRY RUN MODE] Proposed changes:\n")
-            console.print(result)
-        else:
             print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
             
             if verbose:
