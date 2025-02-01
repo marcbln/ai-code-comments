@@ -80,11 +80,33 @@ class LLMClient:
             raise ValueError(f"Invalid {self.provider_name} API key format. Should start with '{key_prefix}'")
 
 
-    def strip_code_block_markers(self, content: str) -> str:
+    @staticmethod
+    def strip_code_block_markers(content: str) -> str:
         # Remove code block markers like ```php or ```diff from start/end
         content = re.sub(r'^```\w*\n', '', content)  # Remove opening markers
         content = re.sub(r'\n```$', '', content)  # Remove closing markers
         return content
+
+    @staticmethod
+    def clean_diff(diff: str) -> str:
+        """
+        Removes line numbers from the @@ ... @@ headers in a unified diff.
+
+        Args:
+            diff (str): The diff content as a string.
+
+        Returns:
+            str: The cleaned diff without line numbers in @@ ... @@ headers.
+        """
+        # Regex to match @@ ... @@ headers with line numbers
+        header_pattern = re.compile(r"@@ -\d+(,\d+)? \+\d+(,\d+)? @@")
+
+        # Replace the header with just @@ @@
+        cleaned_diff = header_pattern.sub("@@ ... @@", diff)
+
+        return cleaned_diff
+
+
 
 
     def improveDocumentation(self, php_code: str, diff_format: bool, verbose: bool = False) -> str:
@@ -129,8 +151,12 @@ class LLMClient:
             content = self.provider.create_completion(self.model, messages, verbose)
 
             # In the original code:
-            return self.strip_code_block_markers(content)
+            content = LLMClient.strip_code_block_markers(content)
 
+            if diff_format:
+                content = LLMClient.clean_diff(content)
+
+            return content
 
         except Exception as e:
             print(f"======= Error: {str(e)} =======")
