@@ -1,3 +1,5 @@
+import sys
+
 from .base import ChangeStrategy
 from pathlib import Path
 from typing import Optional, Tuple
@@ -38,7 +40,7 @@ class UDiffStrategy(ChangeStrategy):
             - Include proper line endings for the complete code block
             """)
 
-    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path:
+    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path|None:
         print("🔄 Applying changes via patch...")
             
         # Create patch file
@@ -47,7 +49,7 @@ class UDiffStrategy(ChangeStrategy):
 
 
         # Apply patch to the temporary file
-        cmd = ['patch', str(pathOrigFile), str(pathTempPatchFile)]
+        cmd = ['patch', str(pathTempPhpFile), str(pathTempPatchFile)]
         print(f"🔧 Applying patch: {' '.join(cmd)}")
 
         result = subprocess.run(
@@ -55,6 +57,11 @@ class UDiffStrategy(ChangeStrategy):
             capture_output=True,
             text=True
         )
+
+        if result.returncode != 0:
+            print(f"Error running patch: {result.stderr}")
+            return None
+
 
         return pathTempPhpFile
 

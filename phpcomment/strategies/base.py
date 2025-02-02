@@ -7,7 +7,7 @@ import subprocess
 class ChangeStrategy(ABC):
 
     @abstractmethod
-    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path:
+    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path|None:
         """
         Apply changes and return (success, temp_file_path)
         

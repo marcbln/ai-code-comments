@@ -81,6 +81,11 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
 
         # Apply changes using strategy (wholefile or udiff)
         pathModifiedCodeTempFile = strategy.process_llm_response(llmResponseRaw, pathOrigFile)
+        if pathModifiedCodeTempFile is None:
+            print(f"⚠️ No changes were made to the file")
+            return
+
+
         print(f"✅ Temp file {pathModifiedCodeTempFile} was created.")
         
         # Validate the changes
