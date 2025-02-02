@@ -8,6 +8,7 @@ import shutil
 from pathlib import Path
 from typing import Optional
 from ..llm.api_client import LLMClient
+from ..strategies import WholeFileStrategy, UDiffStrategy
 
 import time
 
@@ -79,43 +80,21 @@ def process_php_file(file_path: Path, verbose: bool = False,
             print(f"⏳ Analyzing {len(originalCode)} characters...")
             
         llmResponse = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, diff_format=diff_format, verbose=verbose)
-        print(f">>>> diff_format: {diff_format}")
-        print(f">>>> llmResponse:\n\n{llmResponse}\n\n") # fixme
-
-        if verbose:
-            print(f"✅ LLM request completed in {time.time() - start_time:.1f}s ({len(llmResponse)} characters)")
         
-        # if len(originalCode.splitlines()) > 100:
-        #     print(f"Warning: Processed large file ({len(originalCode.splitlines())} lines) in chunks")
-        # Handle diff format
-        if diff_format:
-            # Create patch file
-            patch_file = tempfile.NamedTemporaryFile(mode='w', suffix='.diff', delete=False)
-            patch_path = Path(patch_file.name)
-            patch_file.write(llmResponse)
-            patch_file.close()
+        if verbose:
+            print(f"✅ LLM request completed in {time.time() - start_time:.1f}s")
 
-            if verbose:
-                print(f"The LLM returned the following diff patch: {patch_path.absolute()} ...")
-                # print(llmResponse)
-
-            # Apply patch
-            try:
-                cmd = ['patch', str(file_path), str(patch_path)]
-                if verbose:
-                    print(f"🔧 Applying patch: {' '.join(cmd)}")
-                subprocess.run(
-                    cmd,
-                    check=True,
-                    capture_output=True
-                )
-            except subprocess.CalledProcessError as e:
-                raise RuntimeError(f"Failed to apply patch: {e.stderr.decode()}") from e
-#            finally:
-#                patch_path.unlink()
-            
-            # Read back patched file for validation
-            llmResponse = file_path.read_text()
+        # Determine if response is a diff by checking for diff markers
+        is_diff = any(line.startswith(('+++', '---', '@@')) for line in llmResponse.splitlines()[:4])
+        
+        # Select strategy based on response type
+        strategy = UDiffStrategy() if is_diff else WholeFileStrategy()
+        
+        # Apply changes using strategy
+        success, tmp_path = strategy.apply_changes(file_path, llmResponse, verbose)
+        
+        if not success or not tmp_path:
+            raise RuntimeError("Failed to apply changes")
         
         # Validate the changes
         is_valid, tmp_path = validate_php_code(file_path, llmResponse, verbose)
