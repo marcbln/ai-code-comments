@@ -2,8 +2,14 @@ from .base import ChangeStrategy
 from pathlib import Path
 from typing import Optional, Tuple
 import tempfile
+from textwrap import dedent
 
 class WholeFileStrategy(ChangeStrategy):
+    @staticmethod
+    def get_prompt_additions() -> str:
+        """Return strategy-specific prompt additions for whole file replacement"""
+        return "- Response ONLY with full modified source code."
+
     def apply_changes(self, file_path: Path, new_content: str, verbose: bool = False) -> Tuple[bool, Optional[Path]]:
         if verbose:
             print("📝 Applying whole file replacement...")

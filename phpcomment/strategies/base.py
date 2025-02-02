@@ -19,3 +19,13 @@ class ChangeStrategy(ABC):
             Tuple of (success, temporary_file_path)
         """
         pass
+
+    @staticmethod
+    def get_prompt_additions() -> str:
+        """
+        Return prompt additions specific to this strategy.. used for the LLM prompt
+
+        Returns:
+            str: Prompt additions
+        """
+        pass
