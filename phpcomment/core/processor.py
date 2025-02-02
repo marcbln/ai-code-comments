@@ -35,13 +35,13 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
         
         if result.returncode != 0:
             print(f"Error running comparison script: {result.stderr}")
-            return False, None
+            return False
             
         is_valid = result.stdout.strip() == 'true'
         
         if is_valid:
             print("✅ Code validation passed")
-            return True, pathModifiedCodeTempFile
+            return True
         else:
             print("❌ Code validation failed - functionality changed")
 
@@ -58,10 +58,10 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
             print(f">>>> original_file: {str(pathOriginalFile)}")
             print(f">>>> modified_file: {str(pathModifiedCodeTempFile)}")
 
-            return False, None
+            return False
     except Exception as e:
         print(f"Validation error: {str(e)}")
-        return False, None
+        return False
 
 def process_php_file(pathOrigFile: Path, verbose: bool = False,
                      model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
@@ -84,7 +84,7 @@ def process_php_file(pathOrigFile: Path, verbose: bool = False,
         print(f"✅ Temp file {pathModifiedCodeTempFile} was created.")
         
         # Validate the changes
-        is_valid, pathModifiedCodeTempFile = validate_php_code(pathOrigFile, pathModifiedCodeTempFile)
+        is_valid = validate_php_code(pathOrigFile, pathModifiedCodeTempFile)
         if not is_valid:
 
 
