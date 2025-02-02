@@ -29,11 +29,12 @@ class MyHelpers:
         file.close()
 
     @classmethod
-    def writeTempCodeFile(cls, cleanedResponse: str, suffix: str = 'php'):
+    def writeTempCodeFile(cls, content: str, suffix: str = '.php'):
         # Create temporary file with new content
         tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
         tmp_path = Path(tmp_file.name)
-        tmp_file.write(cleanedResponse)
+        print(f"📝 Writing temporary file to {tmp_path} with content:\n{content}")
+        tmp_file.write(content)
         tmp_file.close()
 
         return tmp_path

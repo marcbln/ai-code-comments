@@ -13,10 +13,13 @@ class WholeFileStrategy(ChangeStrategy):
         """Return strategy-specific prompt additions for whole file replacement"""
         return "- Response ONLY with full modified source code."
 
-    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> str:
+    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> str|Path:
 
         print("📝 Applying whole file replacement...")
 
         cleanedResponse = MyHelpers.strip_code_block_markers(llmResponseRaw)
 
-        return MyHelpers.writeTempCodeFile(cleanedResponse, 'php')
+        # Write cleaned response to a temporary file
+        pathTempFile = MyHelpers.writeTempCodeFile(cleanedResponse, '.php')
+
+        return pathTempFile
