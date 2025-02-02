@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
 from typing import List, Tuple, Optional
 from pathlib import Path
-import typer
-from rich import print
-from rich.console import Console
 from dataclasses import dataclass
+from rich.console import Console
 
 console = Console()
 
@@ -188,50 +185,3 @@ class MyPatcher:
 
         self.log("\n=== Patch application completed ===")
         return '\n'.join(new_content) + '\n'
-
-
-def patch_files(
-        source_file: Path = typer.Argument(..., help="Original file to patch"),
-        patch_file: Path = typer.Argument(..., help="Patch file to apply"),
-        dest_file: Optional[Path] = typer.Argument(None,
-                                                   help="Optional destination file (if not provided, source file will be modified)"),
-        verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output")
-) -> None:
-    """
-    Apply a patch file to a source file.
-    If dest_file is provided, the source file remains unchanged and the result is written to dest_file.
-    """
-    try:
-        patcher = MyPatcher(verbose=verbose)
-
-        # Read input files
-        with open(source_file) as f:
-            source_content = f.read()
-        with open(patch_file) as f:
-            patch_content = f.read()
-
-        # Apply patch
-        result = patcher.apply_patch(source_content, patch_content)
-
-        # Write result
-        output_file = dest_file or source_file
-        with open(output_file, 'w') as f:
-            f.write(result)
-
-        if dest_file:
-            print(f"[green]Successfully created patched file: {dest_file}[/green]")
-            print(f"[blue]Original file {source_file} remains unchanged[/blue]")
-        else:
-            print(f"[green]Successfully patched {source_file}[/green]")
-
-    except Exception as e:
-        print(f"[red]Error applying patch: {e}[/red]")
-        raise typer.Exit(1)
-
-
-def main():
-    typer.run(patch_files)
-
-
-if __name__ == "__main__":
-    main()
