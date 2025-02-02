@@ -20,7 +20,6 @@ console = Console()
 @app.command()
 def comment(
     file_path: Path = typer.Argument(..., help="Path to PHP file to document", exists=True),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed processing information"),
     model: str = typer.Option(
         "openrouter/qwen/qwen-2.5-coder-32b-instruct",
         help="Model to use for processing (openrouter/... or deepseek/...)",
