@@ -35,9 +35,8 @@ class UDiffStrategy(ChangeStrategy):
             - Include proper line endings for the complete code block
             """)
 
-    def process_llm_response_raw(self, file_path: Path, llmResponseRaw: str, verbose: bool = False) -> Tuple[bool, Optional[Path]]:
-        if verbose:
-            print("🔄 Applying changes via patch...")
+    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> str:
+        print("🔄 Applying changes via patch...")
             
         # Create patch file
         patch_file = tempfile.NamedTemporaryFile(mode='w', suffix='.diff', delete=False)

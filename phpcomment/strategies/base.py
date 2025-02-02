@@ -5,8 +5,9 @@ import tempfile
 import subprocess
 
 class ChangeStrategy(ABC):
+
     @abstractmethod
-    def process_llm_response_raw(self, file_path: Path, llmResponseRaw: str, verbose: bool = False) -> Tuple[bool, Optional[Path]]:
+    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> str:
         """
         Apply changes and return (success, temp_file_path)
         
@@ -16,19 +17,8 @@ class ChangeStrategy(ABC):
             verbose: Enable verbose output
             
         Returns:
-            Tuple of (success, temporary_file_path)
+            str temporary_file_path
         """
         pass
-
-    @staticmethod
-    def process_llm_response() -> str:
-        """
-        Return prompt additions specific to this strategy.. used for the LLM prompt
-
-        Returns:
-            str: Prompt additions
-        """
-        pass
-
 
 

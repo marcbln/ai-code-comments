@@ -4,7 +4,7 @@ import time
 from typing import Dict, Type, Optional
 from .prompts import DocumentationPrompts
 from .providers import LLMProvider, OpenAIApiAdapter, OpenRouterApiAdapter
-from .helpers import LlmResponseHelpers
+from .helpers import MyHelpers
 from ..strategies import ChangeStrategy, UDiffStrategy
 
 
