@@ -63,9 +63,9 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
         print(f"Validation error: {str(e)}")
         return False
 
-def process_php_file(pathOrigFile: Path, verbose: bool = False,
-                     model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
-                     strategy: ChangeStrategy = WholeFileStrategy()) -> None:
+def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
+                                  model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
+                                  strategy: ChangeStrategy = WholeFileStrategy()) -> None:
     """Process PHP file through documentation pipeline"""
     originalCode = pathOrigFile.read_text()
 

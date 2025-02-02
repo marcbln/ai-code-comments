@@ -7,7 +7,7 @@ from typing import Optional
 from rich.console import Console
 
 from phpcomment.strategies import UDiffStrategy, WholeFileStrategy
-from ..core.processor import process_php_file
+from ..core.processor import improveDocumentationOfPhpFile
 from ..utils.error_handler import handle_error
 from ..utils.output import print_success
 
@@ -45,7 +45,7 @@ def comment(
             # Select strategy based on response type
             strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
 
-            result = process_php_file(file_path, strategy=strategy, verbose=verbose, model=model)
+            result = improveDocumentationOfPhpFile(file_path, strategy=strategy, verbose=verbose, model=model)
             console.print(f"✅ [green]Processed {file_path.name} in", end="")
             print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
             
