@@ -8,7 +8,8 @@ import shutil
 from pathlib import Path
 from typing import Optional
 from ..llm.api_client import LLMClient
-from ..strategies import WholeFileStrategy, UDiffStrategy
+from ..llm.prompts import DocumentationPrompts
+from ..strategies import WholeFileStrategy, UDiffStrategy, ChangeStrategy
 
 import time
 
@@ -70,37 +71,31 @@ def validate_php_code(original_file: Path, modified_code: str, verbose: bool = F
 
 def process_php_file(file_path: Path, verbose: bool = False,
                      model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
-                     use_udiff_coder: bool = False) -> None:
+                     strategy: ChangeStrategy = WholeFileStrategy()) -> None:
     """Process PHP file through documentation pipeline"""
     originalCode = file_path.read_text()
-    
+
     try:
         start_time = time.time()
         if verbose:
             print(f"⏳ Analyzing {len(originalCode)} characters...")
-            
-        llmResponse = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, use_udiff_coder=use_udiff_coder, verbose=verbose)
-        
+
+        systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(originalCode, strategy)
+        llmResponseRaw = LLMClient(modelWithPrefix=model).sendRequest(systemPrompt, userPrompt)
         if verbose:
             print(f"✅ LLM request completed in {time.time() - start_time:.1f}s")
 
-        # Determine if response is a diff by checking for diff markers
-        is_diff = any(line.startswith(('+++', '---', '@@')) for line in llmResponse.splitlines()[:4])
-        
-        # Select strategy based on response type
-        strategy = UDiffStrategy() if is_diff else WholeFileStrategy()
-        
         # Apply changes using strategy (wholefile or udiff)
-        success, tmp_path = strategy.apply_changes(file_path, llmResponse, verbose)
+        success, tmp_path = strategy.process_llm_response_raw(file_path, llmResponseRaw, verbose)
         
         if not success or not tmp_path:
             raise RuntimeError("Failed to apply changes")
         
         # Validate the changes
-        is_valid, tmp_path = validate_php_code(file_path, llmResponse, verbose)
+        is_valid, tmp_path = validate_php_code(file_path, llmResponseRaw, verbose)
         if not is_valid:
 
-            print(f"\n\nmodified code:\n\n{llmResponse}")
+            print(f"\n\nmodified code:\n\n{llmResponseRaw}")
 
             raise RuntimeError(
                 f"Failed to process {file_path.name}: Code validation failed. "
@@ -109,7 +104,7 @@ def process_php_file(file_path: Path, verbose: bool = False,
 
         if tmp_path and tmp_path.exists():
             # Handle diff output format
-            if use_udiff_coder:
+            if strategy == UDiffStrategy():
                 diff_result = subprocess.run(
                     ['diff', '-u', '--color=always', str(file_path), str(tmp_path)],
                     capture_output=True,

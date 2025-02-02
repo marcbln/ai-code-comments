@@ -35,14 +35,14 @@ class UDiffStrategy(ChangeStrategy):
             - Include proper line endings for the complete code block
             """)
 
-    def apply_changes(self, file_path: Path, llm_response: str, verbose: bool = False) -> Tuple[bool, Optional[Path]]:
+    def process_llm_response_raw(self, file_path: Path, llmResponseRaw: str, verbose: bool = False) -> Tuple[bool, Optional[Path]]:
         if verbose:
             print("🔄 Applying changes via patch...")
             
         # Create patch file
         patch_file = tempfile.NamedTemporaryFile(mode='w', suffix='.diff', delete=False)
         patch_path = Path(patch_file.name)
-        patch_file.write(llm_response)
+        patch_file.write(llmResponseRaw)
         patch_file.close()
 
         # Create a temporary copy of the original file to apply patch to

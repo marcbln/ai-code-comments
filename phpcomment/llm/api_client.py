@@ -4,15 +4,13 @@ import time
 from typing import Dict, Type, Optional
 from .prompts import DocumentationPrompts
 from .providers import LLMProvider, OpenAIApiAdapter, OpenRouterApiAdapter
+from .helpers import LlmResponseHelpers
+from ..strategies import ChangeStrategy, UDiffStrategy
 
 
 class LLMClient:
     """Handle LLM API communication for documentation generation"""
 
-    PROVIDER_CLASSES: Dict[str, Type[LLMProvider]] = {
-        "openrouter": OpenRouterApiAdapter,
-        "openai": OpenAIApiAdapter,
-    }
 
     PROVIDER_CONFIGS = {
         "openrouter": {
@@ -80,39 +78,13 @@ class LLMClient:
             raise ValueError(f"Invalid {self.provider_name} API key format. Should start with '{key_prefix}'")
 
 
-    @staticmethod
-    def strip_code_block_markers(content: str) -> str:
-        # Remove code block markers like ```php or ```diff from start/end
-        content = re.sub(r'^```\w*\n', '', content)  # Remove opening markers
-        content = re.sub(r'\n```$', '', content)  # Remove closing markers
-        return content
-
-    @staticmethod
-    def clean_diff(diff: str) -> str:
-        """
-        Removes line numbers from the @@ ... @@ headers in a unified diff.
-
-        Args:
-            diff (str): The diff content as a string.
-
-        Returns:
-            str: The cleaned diff without line numbers in @@ ... @@ headers.
-        """
-        # Regex to match @@ ... @@ headers with line numbers
-        header_pattern = re.compile(r"@@ -\d+(,\d+)? \+\d+(,\d+)? @@")
-
-        # Replace the header with just @@ @@
-        cleaned_diff = header_pattern.sub("@@ ... @@", diff)
-
-        return cleaned_diff
 
 
 
-
-    def improveDocumentation(self, php_code: str, use_udiff_coder: bool, verbose: bool = False) -> str:
+    def sendRequest(self, systemPrompt: str, userPrompt: str, verbose: bool = True) -> str:
         """Send PHP code to LLM and return documented version"""
 
-        systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(php_code, use_udiff_coder)
+
 
         print(f"LLM Prompt:\n{userPrompt}")
 
@@ -150,23 +122,17 @@ class LLMClient:
 
             content = self.provider.create_completion(self.model, messages, verbose)
 
-            # In the original code:
-            content = LLMClient.strip_code_block_markers(content)
-
-            if use_udiff_coder:
-                content = LLMClient.clean_diff(content)
-
             return content
 
         except Exception as e:
             print(f"======= Error: {str(e)} =======")
 
-            debug_info = f"""
-            API Error Details:
-            - Model: {self.model}
-            - Provider: {self.provider}
-            - API Key: {self.api_key[:10]}...{self.api_key[-4:]}
-            - Code Length: {len(php_code)} chars
-            - Prompt Length: {len(userPrompt)} chars
-            """
+            debug_info = (
+                "\nAPI Error Details:\n"
+                f"- Model: {self.model}\n"
+                f"- Provider: {self.provider_name}\n"
+                f"- API Key: {self.api_key[:10]}...{self.api_key[-4:]}\n"
+                f"- Code Length: {len(php_code)} chars\n"
+                f"- Prompt Length: {len(userPrompt)} chars\n"
+            )
             raise RuntimeError(f"LLM API failed: {str(e)}\n{debug_info}") from e

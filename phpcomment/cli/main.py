@@ -5,6 +5,8 @@ import typer
 from pathlib import Path
 from typing import Optional
 from rich.console import Console
+
+from phpcomment.strategies import UDiffStrategy, WholeFileStrategy
 from ..core.processor import process_php_file
 from ..utils.error_handler import handle_error
 from ..utils.output import print_success
@@ -24,7 +26,7 @@ def comment(
         help="Model to use for processing (openrouter/... or deepseek/...)",
         show_default=True
     ),
-    use_diff_coder: bool = typer.Option(
+    use_udiff_coder: bool = typer.Option(
         False, "--diff", 
         help="Output changes as unified diff patch instead of full file"
     )
@@ -39,7 +41,11 @@ def comment(
     """
     try:
         with console.status("[bold green]Processing PHP file...", spinner="dots"):
-            result = process_php_file(file_path, use_udiff_coder=use_diff_coder, verbose=verbose, model=model)
+
+            # Select strategy based on response type
+            strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
+
+            result = process_php_file(file_path, strategy=strategy, verbose=verbose, model=model)
             console.print(f"✅ [green]Processed {file_path.name} in", end="")
             print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
             

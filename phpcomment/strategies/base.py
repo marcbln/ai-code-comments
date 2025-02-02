@@ -6,13 +6,13 @@ import subprocess
 
 class ChangeStrategy(ABC):
     @abstractmethod
-    def apply_changes(self, file_path: Path, new_content: str, verbose: bool = False) -> Tuple[bool, Optional[Path]]:
+    def process_llm_response_raw(self, file_path: Path, llmResponseRaw: str, verbose: bool = False) -> Tuple[bool, Optional[Path]]:
         """
         Apply changes and return (success, temp_file_path)
         
         Args:
             file_path: Original file path
-            new_content: New content from LLM
+            llmResponseRaw: New content from LLM
             verbose: Enable verbose output
             
         Returns:
@@ -21,7 +21,7 @@ class ChangeStrategy(ABC):
         pass
 
     @staticmethod
-    def get_prompt_additions() -> str:
+    def process_llm_response() -> str:
         """
         Return prompt additions specific to this strategy.. used for the LLM prompt
 
@@ -29,3 +29,6 @@ class ChangeStrategy(ABC):
             str: Prompt additions
         """
         pass
+
+
+
