@@ -29,12 +29,24 @@ class MyHelpers:
         file.close()
 
     @classmethod
-    def writeTempCodeFile(cls, content: str, suffix: str = '.php'):
+    def writeTempCodeFile(cls, content: str, suffix: str = '.php') -> Path:
         # Create temporary file with new content
         tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
-        tmp_path = Path(tmp_file.name)
-        print(f"📝 Writing temporary file to {tmp_path} with content:\n{content}")
+        print(f"📝 Writing temporary file to {tmp_file.name} with content:\n{content}")
         tmp_file.write(content)
         tmp_file.close()
 
-        return tmp_path
+        return Path(tmp_file.name)
+
+    @classmethod
+    def copyToTempfile(cls, pathOrigFile: Path) -> Path:
+        # detect suffix
+        suffix = pathOrigFile.suffix
+        # Copy original file to temporary file
+        tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
+        print(f"📝 Copying {pathOrigFile} to {tmp_file.name}")
+        with open(pathOrigFile, 'r') as file:
+            tmp_file.write(file.read())
+        tmp_file.close()
+
+        return Path(tmp_file.name)

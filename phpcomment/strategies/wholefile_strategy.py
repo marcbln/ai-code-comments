@@ -13,7 +13,7 @@ class WholeFileStrategy(ChangeStrategy):
         """Return strategy-specific prompt additions for whole file replacement"""
         return "- Response ONLY with full modified source code."
 
-    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> str|Path:
+    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path:
 
         print("📝 Applying whole file replacement...")
 

@@ -5,6 +5,9 @@ import tempfile
 import subprocess
 from textwrap import dedent
 
+from ..llm.helpers import MyHelpers
+
+
 class UDiffStrategy(ChangeStrategy):
     @staticmethod
     def get_prompt_additions() -> str:
@@ -35,42 +38,23 @@ class UDiffStrategy(ChangeStrategy):
             - Include proper line endings for the complete code block
             """)
 
-    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> str:
+    def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path:
         print("🔄 Applying changes via patch...")
             
         # Create patch file
-        patch_file = tempfile.NamedTemporaryFile(mode='w', suffix='.diff', delete=False)
-        patch_path = Path(patch_file.name)
-        patch_file.write(llmResponseRaw)
-        patch_file.close()
+        pathTempPatchFile = MyHelpers.writeTempCodeFile(llmResponseRaw, '.diff')
+        pathTempPhpFile = MyHelpers.copyToTempfile(pathOrigFile)
 
-        # Create a temporary copy of the original file to apply patch to
-        tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.php', delete=False)
-        tmp_path = Path(tmp_file.name)
-        tmp_file.write(file_path.read_text())
-        tmp_file.close()
-        
-        try:
-            # Apply patch to the temporary file
-            cmd = ['patch', str(tmp_path), str(patch_path)]
-            if verbose:
-                print(f"🔧 Applying patch: {' '.join(cmd)}")
-                
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True
-            )
-            
-            if result.returncode != 0:
-                print(f"Error applying patch: {result.stderr}")
-                return False, None
-                
-            return True, tmp_path
-            
-        except Exception as e:
-            print(f"Failed to apply patch: {str(e)}")
-            return False, None
-        finally:
-            # Clean up patch file
-            patch_path.unlink()
+
+        # Apply patch to the temporary file
+        cmd = ['patch', str(pathOrigFile), str(pathTempPatchFile)]
+        print(f"🔧 Applying patch: {' '.join(cmd)}")
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True
+        )
+
+        return pathTempPhpFile
+
