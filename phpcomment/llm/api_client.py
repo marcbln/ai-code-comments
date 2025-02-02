@@ -109,10 +109,10 @@ class LLMClient:
 
 
 
-    def improveDocumentation(self, php_code: str, diff_format: bool, verbose: bool = False) -> str:
+    def improveDocumentation(self, php_code: str, use_udiff_coder: bool, verbose: bool = False) -> str:
         """Send PHP code to LLM and return documented version"""
 
-        systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(php_code, diff_format)
+        systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(php_code, use_udiff_coder)
 
         print(f"LLM Prompt:\n{userPrompt}")
 
@@ -153,7 +153,7 @@ class LLMClient:
             # In the original code:
             content = LLMClient.strip_code_block_markers(content)
 
-            if diff_format:
+            if use_udiff_coder:
                 content = LLMClient.clean_diff(content)
 
             return content

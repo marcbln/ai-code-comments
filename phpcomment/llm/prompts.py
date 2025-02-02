@@ -7,7 +7,7 @@ class DocumentationPrompts:
     SYSTEM_PROMPT = "You are a senior PHP developer. You are tasked to add or improve comments of a large legacy php codebase."
 
     @classmethod
-    def get_full_prompt(cls, php_code: str, diff_format: bool) -> tuple[str, str]:
+    def get_full_prompt(cls, php_code: str, use_udiff_coder: bool) -> tuple[str, str]:
         """Return complete prompt with all original rules and formatting"""
         user_prompt = dedent(f"""
             Analyze the PHP_CODE and apply following rules:
@@ -21,7 +21,7 @@ class DocumentationPrompts:
             - NEVER replace code with comments like "// ... rest of the code remains unchanged ..."
             """)
 
-        if diff_format:
+        if use_udiff_coder:
             user_prompt += dedent("""
                 - Output MUST be a valid unified diff patch.
                 - Start response with '--- original.php'

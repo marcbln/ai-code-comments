@@ -24,7 +24,7 @@ def comment(
         help="Model to use for processing (openrouter/... or deepseek/...)",
         show_default=True
     ),
-    diff_format: bool = typer.Option(
+    use_diff_coder: bool = typer.Option(
         False, "--diff", 
         help="Output changes as unified diff patch instead of full file"
     )
@@ -39,7 +39,7 @@ def comment(
     """
     try:
         with console.status("[bold green]Processing PHP file...", spinner="dots"):
-            result = process_php_file(file_path, diff_format=diff_format, verbose=verbose, model=model)
+            result = process_php_file(file_path, use_udiff_coder=use_diff_coder, verbose=verbose, model=model)
             console.print(f"✅ [green]Processed {file_path.name} in", end="")
             print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
             

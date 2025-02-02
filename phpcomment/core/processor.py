@@ -68,9 +68,9 @@ def validate_php_code(original_file: Path, modified_code: str, verbose: bool = F
         print(f"Validation error: {str(e)}")
         return False, None
 
-def process_php_file(file_path: Path, verbose: bool = False, 
-                    model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
-                    diff_format: bool = False) -> None:
+def process_php_file(file_path: Path, verbose: bool = False,
+                     model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
+                     use_udiff_coder: bool = False) -> None:
     """Process PHP file through documentation pipeline"""
     originalCode = file_path.read_text()
     
@@ -79,7 +79,7 @@ def process_php_file(file_path: Path, verbose: bool = False,
         if verbose:
             print(f"⏳ Analyzing {len(originalCode)} characters...")
             
-        llmResponse = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, diff_format=diff_format, verbose=verbose)
+        llmResponse = LLMClient(modelWithPrefix=model).improveDocumentation(originalCode, use_udiff_coder=use_udiff_coder, verbose=verbose)
         
         if verbose:
             print(f"✅ LLM request completed in {time.time() - start_time:.1f}s")
@@ -90,7 +90,7 @@ def process_php_file(file_path: Path, verbose: bool = False,
         # Select strategy based on response type
         strategy = UDiffStrategy() if is_diff else WholeFileStrategy()
         
-        # Apply changes using strategy
+        # Apply changes using strategy (wholefile or udiff)
         success, tmp_path = strategy.apply_changes(file_path, llmResponse, verbose)
         
         if not success or not tmp_path:
@@ -109,7 +109,7 @@ def process_php_file(file_path: Path, verbose: bool = False,
 
         if tmp_path and tmp_path.exists():
             # Handle diff output format
-            if diff_format:
+            if use_udiff_coder:
                 diff_result = subprocess.run(
                     ['diff', '-u', '--color=always', str(file_path), str(tmp_path)],
                     capture_output=True,
