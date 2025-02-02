@@ -45,13 +45,12 @@ def comment(
             # Select strategy based on response type
             strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
 
-            result = improveDocumentationOfPhpFile(file_path, strategy=strategy, verbose=verbose, model=model)
+            result = improveDocumentationOfPhpFile(file_path, strategy=strategy, model=model)
             console.print(f"✅ [green]Processed {file_path.name} in", end="")
             print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
             
-            if verbose:
-                console.print("\nModified content:", markup=False)
-                console.print(result)
+            console.print("\nModified content:", markup=False)
+            console.print(result)
                 
     except Exception as e:
         handle_error(e, verbose=verbose)
