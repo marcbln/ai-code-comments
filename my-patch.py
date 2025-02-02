@@ -1,126 +1,237 @@
 #!/usr/bin/env python3
-import sys
-import re
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+from pathlib import Path
+import typer
+from rich import print
+from rich.console import Console
+from dataclasses import dataclass
 
-def parse_patch_hunks(patch_content: str) -> List[Tuple[List[str], List[str], List[str]]]:
-    """Parse patch file into hunks. Each hunk contains (context_before, changes, context_after)."""
-    hunks = []
-    current_hunk = []
-    in_hunk = False
-    
-    for line in patch_content.splitlines():
-        if line.startswith('@@ '):
-            if in_hunk:
-                hunks.append(parse_hunk(current_hunk))
+console = Console()
+
+
+@dataclass
+class PatchHunk:
+    """Represents a single hunk in a patch file."""
+    context_before: List[str]
+    changes: List[Tuple[str, str]]  # List of (operation, line) tuples
+    context_after: List[str]
+
+
+class MyPatcher:
+    """Handles the parsing and application of patches."""
+
+    def __init__(self, verbose: bool = False):
+        self.verbose = verbose
+
+    def log(self, message: str) -> None:
+        """Print a log message if verbose mode is enabled."""
+        if self.verbose:
+            console.log(message)
+
+    def parse_patch_hunks(self, patch_content: str) -> List[PatchHunk]:
+        """Parse patch file content into a list of PatchHunk objects."""
+        self.log("\n=== Parsing patch file ===")
+        hunks = []
+        current_hunk = []
+        in_hunk = False
+
+        for line_num, line in enumerate(patch_content.splitlines(), 1):
+            if line.startswith('---') or line.startswith('+++'):
+                self.log(f"Skipping file header at line {line_num}: {line}")
+                continue
+
+            if line.startswith('@@ '):
+                self.log(f"\nFound hunk header at line {line_num}: {line}")
+                if in_hunk:
+                    hunks.append(self._parse_hunk(current_hunk))
+                    current_hunk = []
+                in_hunk = True
                 current_hunk = []
-            in_hunk = True
-        if in_hunk:
-            current_hunk.append(line)
-            
-    if current_hunk:
-        hunks.append(parse_hunk(current_hunk))
-        
-    return hunks
+            elif in_hunk:
+                current_hunk.append(line)
 
-def parse_hunk(hunk_lines: List[str]) -> Tuple[List[str], List[str], List[str]]:
-    """Parse a single hunk into context_before, changes, and context_after."""
-    context_before = []
-    changes = []
-    context_after = []
-    
-    # Skip the @@ line
-    current_section = context_before
-    
-    for line in hunk_lines[1:]:
-        if line.startswith(' '):
-            if changes and current_section is context_before:
-                current_section = context_after
-            current_section.append(line[1:])
-        elif line.startswith('-'):
-            if current_section is context_before:
-                context_before.pop()
-            changes.append(('-', line[1:]))
-        elif line.startswith('+'):
-            changes.append(('+', line[1:]))
-            
-    return context_before, changes, context_after
+        if current_hunk:
+            hunks.append(self._parse_hunk(current_hunk))
 
-def find_hunk_position(content: List[str], context_before: List[str], context_after: List[str]) -> int:
-    """Find the position in content where the hunk should be applied."""
-    if not context_before and not context_after:
-        return -1
-        
-    content_str = '\n'.join(content)
-    search_str = '\n'.join(context_before + context_after)
-    
-    # Handle empty context cases
-    if not search_str:
-        return 0
-        
-    # Find all possible matches
-    matches = []
-    start = 0
-    while True:
-        pos = content_str.find(search_str, start)
-        if pos == -1:
-            break
-        matches.append(pos)
-        start = pos + 1
-        
-    if len(matches) == 1:
-        # Count newlines to get line number
-        return content_str.count('\n', 0, matches[0]) + len(context_before)
-    
-    return -1
+        self.log(f"\nTotal hunks found: {len(hunks)}")
+        return hunks
 
-def apply_patch(source_file: str, patch_file: str) -> str:
-    """Apply the patch to the source file."""
-    with open(source_file, 'r') as f:
-        content = f.read().splitlines()
-        
-    with open(patch_file, 'r') as f:
-        patch_content = f.read()
-        
-    hunks = parse_patch_hunks(patch_content)
-    new_content = content.copy()
-    
-    # Apply hunks in reverse order to keep line numbers valid
-    for context_before, changes, context_after in reversed(hunks):
-        position = find_hunk_position(content, context_before, context_after)
-        
-        if position == -1:
-            print(f"Warning: Could not find match for hunk:\n{context_before}\n{changes}\n{context_after}")
-            continue
-            
-        # Apply changes
-        for op, line in reversed(changes):
-            if op == '+':
-                new_content.insert(position, line)
-            elif op == '-':
-                if position < len(new_content) and new_content[position] == line:
-                    del new_content[position]
-                else:
-                    print(f"Warning: Line to remove not found: {line}")
-                    
-    return '\n'.join(new_content)
+    def _parse_hunk(self, hunk_lines: List[str]) -> PatchHunk:
+        """Parse a single hunk into a PatchHunk object."""
+        self.log("\n--- Parsing hunk ---")
+        context_before = []
+        changes = []
+        context_after = []
+
+        # Skip empty lines at the start
+        start_idx = 0
+        while start_idx < len(hunk_lines) and not hunk_lines[start_idx].strip():
+            start_idx += 1
+
+        current_section = context_before
+
+        for line_num, line in enumerate(hunk_lines[start_idx:], 1):
+            if line.startswith(' '):
+                if changes and current_section is context_before:
+                    self.log("Switching to context_after section")
+                    current_section = context_after
+                current_section.append(line[1:])
+                section_name = "before" if current_section is context_before else "after"
+                self.log(f"Adding context line ({section_name}): {line[1:]!r}")
+            elif line.startswith('-'):
+                if current_section is context_before and context_before:
+                    removed = context_before.pop()
+                    self.log(f"Removing line from context_before: {removed!r}")
+                changes.append(('-', line[1:]))
+                self.log(f"Recording removal: {line[1:]!r}")
+            elif line.startswith('+'):
+                changes.append(('+', line[1:]))
+                self.log(f"Recording addition: {line[1:]!r}")
+
+        return PatchHunk(context_before, changes, context_after)
+
+    def _find_hunk_position(self, content: List[str], hunk: PatchHunk) -> Optional[int]:
+        """Find the position in content where the hunk should be applied."""
+        self.log("\n--- Finding hunk position ---")
+
+        if not hunk.context_before and not hunk.context_after:
+            self.log("No context lines available, defaulting to position 0")
+            return 0
+
+        # Try to find position using context_before
+        if hunk.context_before:
+            self.log("\nSearching using context_before:")
+            self.log(f"Context lines: {[line.rstrip() for line in hunk.context_before]}")
+            for i in range(len(content)):
+                matches = True
+                for j, ctx_line in enumerate(hunk.context_before):
+                    if i + j >= len(content) or content[i + j].rstrip() != ctx_line.rstrip():
+                        matches = False
+                        break
+                if matches:
+                    position = i + len(hunk.context_before)
+                    self.log(f"Found match at position {position}")
+                    return position
+
+        # If no match found with context_before, try context_after
+        if hunk.context_after:
+            self.log("\nSearching using context_after:")
+            self.log(f"Context lines: {[line.rstrip() for line in hunk.context_after]}")
+            for i in range(len(content)):
+                matches = True
+                for j, ctx_line in enumerate(hunk.context_after):
+                    if i + j >= len(content) or content[i + j].rstrip() != ctx_line.rstrip():
+                        matches = False
+                        break
+                if matches:
+                    self.log(f"Found match at position {i}")
+                    return i
+
+        self.log("No matching position found!")
+        return None
+
+    def _apply_changes(self, content: List[str], position: int, changes: List[Tuple[str, str]]) -> List[str]:
+        """Apply changes at the specified position."""
+        self.log(f"\n--- Applying changes at position {position} ---")
+        result = content[:position]
+        i = position
+        changes_iter = iter(changes)
+
+        try:
+            while i < len(content):
+                current_change = next(changes_iter, None)
+                if not current_change:
+                    self.log(f"No more changes, keeping remaining lines from position {i}")
+                    result.extend(content[i:])
+                    break
+
+                op, line = current_change
+                if op == '-':
+                    if i < len(content) and content[i].rstrip() == line.rstrip():
+                        self.log(f"Removing line at position {i}: {content[i]!r}")
+                        i += 1
+                    else:
+                        self.log(f"Warning: Could not find exact line to remove: {line!r}")
+                        self.log(f"Current line at position {i}: {content[i] if i < len(content) else 'EOF'!r}")
+                        result.append(line)
+                else:  # op == '+'
+                    self.log(f"Adding line: {line!r}")
+                    result.append(line)
+
+        except StopIteration:
+            self.log(f"Finished applying changes, keeping remaining lines from position {i}")
+            result.extend(content[i:])
+
+        return result
+
+    def apply_patch(self, source_content: str, patch_content: str) -> str:
+        """Apply the patch to the source content and return the result."""
+        self.log(f"\n=== Starting patch application ===")
+
+        content_lines = source_content.splitlines()
+        hunks = self.parse_patch_hunks(patch_content)
+        new_content = content_lines
+
+        # Apply hunks in order
+        for hunk_num, hunk in enumerate(hunks, 1):
+            self.log(f"\n=== Processing hunk {hunk_num}/{len(hunks)} ===")
+            position = self._find_hunk_position(new_content, hunk)
+
+            if position is None:
+                self.log(f"WARNING: Could not find match for hunk {hunk_num}")
+                self.log(f"Context before: {hunk.context_before}")
+                self.log(f"Context after: {hunk.context_after}")
+                continue
+
+            self.log(f"Applying changes for hunk {hunk_num} at position {position}")
+            new_content = self._apply_changes(new_content, position, hunk.changes)
+
+        self.log("\n=== Patch application completed ===")
+        return '\n'.join(new_content) + '\n'
+
+
+def patch_files(
+        source_file: Path = typer.Argument(..., help="Original file to patch"),
+        patch_file: Path = typer.Argument(..., help="Patch file to apply"),
+        dest_file: Optional[Path] = typer.Argument(None,
+                                                   help="Optional destination file (if not provided, source file will be modified)"),
+        verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output")
+) -> None:
+    """
+    Apply a patch file to a source file.
+    If dest_file is provided, the source file remains unchanged and the result is written to dest_file.
+    """
+    try:
+        patcher = MyPatcher(verbose=verbose)
+
+        # Read input files
+        with open(source_file) as f:
+            source_content = f.read()
+        with open(patch_file) as f:
+            patch_content = f.read()
+
+        # Apply patch
+        result = patcher.apply_patch(source_content, patch_content)
+
+        # Write result
+        output_file = dest_file or source_file
+        with open(output_file, 'w') as f:
+            f.write(result)
+
+        if dest_file:
+            print(f"[green]Successfully created patched file: {dest_file}[/green]")
+            print(f"[blue]Original file {source_file} remains unchanged[/blue]")
+        else:
+            print(f"[green]Successfully patched {source_file}[/green]")
+
+    except Exception as e:
+        print(f"[red]Error applying patch: {e}[/red]")
+        raise typer.Exit(1)
+
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python my-patch.py <source-file> <patch-file>")
-        sys.exit(1)
-        
-    source_file = sys.argv[1]
-    patch_file = sys.argv[2]
-    
-    try:
-        patched_content = apply_patch(source_file, patch_file)
-        with open(source_file, 'w') as f:
-            f.write(patched_content)
-    except Exception as e:
-        print(f"Error applying patch: {e}")
-        sys.exit(1)
+    typer.run(patch_files)
+
 
 if __name__ == "__main__":
     main()
-
