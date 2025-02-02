@@ -15,7 +15,23 @@ class PatchHunk:
 
 
 class MyPatcher:
-    """Handles the parsing and application of patches."""
+    """
+    Handles the parsing and application of patches.
+
+    The hunks in the patch file have some "special format" which are missing the range information. For example instead of
+    ```
+    @@ -1,6 +1,10 @@
+    ```
+    the hunks look like
+    ```
+    @@ ... @@
+    ```
+    or just
+    ```
+    @@ @@
+    ```
+    This patcher ignores any range information in the hunks. It just searches in the source code for the correct locations.
+    """
 
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
@@ -132,33 +148,39 @@ class MyPatcher:
         self.log(f"\n--- Applying changes at position {position} ---")
         result = content[:position]
         i = position
-        changes_iter = iter(changes)
-
-        try:
-            while i < len(content):
-                current_change = next(changes_iter, None)
-                if not current_change:
-                    self.log(f"No more changes, keeping remaining lines from position {i}")
-                    result.extend(content[i:])
+        
+        # Group changes by type for easier processing
+        additions = []
+        removals = []
+        for op, line in changes:
+            if op == '+':
+                additions.append(line)
+            else:
+                removals.append(line)
+                
+        # Process removals first to find their positions
+        lines_to_remove = set()
+        for line in removals:
+            search_pos = i
+            while search_pos < len(content):
+                if content[search_pos].rstrip() == line.rstrip():
+                    self.log(f"Marking line for removal at position {search_pos}: {content[search_pos]!r}")
+                    lines_to_remove.add(search_pos)
                     break
-
-                op, line = current_change
-                if op == '-':
-                    if i < len(content) and content[i].rstrip() == line.rstrip():
-                        self.log(f"Removing line at position {i}: {content[i]!r}")
-                        i += 1
-                    else:
-                        self.log(f"Warning: Could not find exact line to remove: {line!r}")
-                        self.log(f"Current line at position {i}: {content[i] if i < len(content) else 'EOF'!r}")
-                        result.append(line)
-                else:  # op == '+'
-                    self.log(f"Adding line: {line!r}")
-                    result.append(line)
-
-        except StopIteration:
-            self.log(f"Finished applying changes, keeping remaining lines from position {i}")
-            result.extend(content[i:])
-
+                search_pos += 1
+                
+        # Now process the content, adding new lines at the start of the change position
+        # Add all additions first
+        for line in additions:
+            self.log(f"Adding line: {line!r}")
+            result.append(line)
+            
+        # Then add remaining content, skipping removed lines
+        while i < len(content):
+            if i not in lines_to_remove:
+                result.append(content[i])
+            i += 1
+                
         return result
 
     def apply_patch(self, source_content: str, patch_content: str) -> str:
