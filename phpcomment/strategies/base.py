@@ -6,6 +6,12 @@ import subprocess
 
 class ChangeStrategy(ABC):
 
+    @staticmethod
+    @abstractmethod
+    def get_prompt_additions() -> str:
+        """Return strategy-specific prompt additions for whole file replacement"""
+        return "- Response ONLY with full modified source code."
+
     @abstractmethod
     def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path|None:
         """

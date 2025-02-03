@@ -47,7 +47,9 @@ class MyPatcher:
         if current_hunk:
             hunks.append(self._parse_hunk(current_hunk))
 
-        self.log(f"\nTotal hunks found: {len(hunks)}")
+        logger.info(f"Created {len(hunks)} search-replace pairs from patch")
+        for i, hunk in enumerate(hunks, 1):
+            self.log(f"Hunk {i}: {len(hunk.original)} original lines -> {len(hunk.modified)} modified lines")
         return hunks
 
     def _parse_hunk(self, hunk_lines: List[str]) -> PatchHunk:
@@ -115,7 +117,7 @@ class MyPatcher:
 
     def apply_patch(self, source_content: str, patch_content: str) -> str:
         """Apply the patch to the source content and return the result."""
-        self.log(f"\n=== Starting patch application ===")
+        logger.info(f"Starting to apply patch...")
 
         # Split content preserving empty lines
         content_lines = source_content.splitlines()
@@ -127,5 +129,5 @@ class MyPatcher:
             self.log(f"\n=== Processing hunk {hunk_num}/{len(hunks)} ===")
             new_content = self._apply_hunk(new_content, hunk)
 
-        self.log("\n=== Patch application completed ===")
+        logger.info("Patch application completed")
         return '\n'.join(new_content) + '\n'
