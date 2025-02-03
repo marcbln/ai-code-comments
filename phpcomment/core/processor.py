@@ -56,7 +56,7 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
             )
             if diff_result.stdout or diff_result.stderr:
                 logger.warning("Differences found:")
-                logger.info(diff_result.stdout or diff_result.stderr)
+                print(diff_result.stdout or diff_result.stderr)
 
             logger.debug(f"Original file: {str(pathOriginalFile)}")
             logger.debug(f"Modified file: {str(pathModifiedCodeTempFile)}")
