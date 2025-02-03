@@ -1,13 +1,9 @@
-import sys
-
 from .base import ChangeStrategy
 from pathlib import Path
-from typing import Optional, Tuple
-import tempfile
-import subprocess
 from textwrap import dedent
 
 from ..llm.helpers import MyHelpers
+from ..utils.patcher import MyPatcher
 
 
 class UDiffStrategy(ChangeStrategy):
@@ -42,26 +38,21 @@ class UDiffStrategy(ChangeStrategy):
 
     def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path|None:
         print("🔄 Applying changes via patch...")
+        
+        # Read original content
+        with open(pathOrigFile, 'r') as f:
+            original_content = f.read()
             
-        # Create patch file
-        pathTempPatchFile = MyHelpers.writeTempCodeFile(llmResponseRaw, '.diff')
-        pathTempPhpFile = MyHelpers.copyToTempfile(pathOrigFile)
-
-
-        # Apply patch to the temporary file
-        cmd = ['patch', str(pathTempPhpFile), str(pathTempPatchFile)]
-        print(f"🔧 Applying patch: {' '.join(cmd)}")
-
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True
-        )
-
-        if result.returncode != 0:
-            print(f"Error running patch: {result.stderr}")
+        # Apply patch using MyPatcher
+        patcher = MyPatcher(verbose=False)
+        try:
+            modified_content = patcher.apply_patch(original_content, llmResponseRaw)
+        except Exception as e:
+            print(f"Error applying patch: {str(e)}")
             return None
-
-
+            
+        # Write modified content to temp file
+        pathTempPhpFile = MyHelpers.writeTempCodeFile(modified_content)
+        
         return pathTempPhpFile
 
