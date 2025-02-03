@@ -22,11 +22,13 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
         if not compare_script.exists():
             raise RuntimeError(f"Comparison script not found at {compare_script}")
         
-        print(f"🔍 Validating code changes...")
+        from ..utils.logger import logger
+        
+        logger.info("Validating code changes...")
             
         # Run comparison
         cmd = ['php', str(compare_script), str(pathOriginalFile), str(pathModifiedCodeTempFile)]
-        print(f"🚀 Running command: {' '.join(cmd)}")
+        logger.debug(f"Running command: {' '.join(cmd)}")
         result = subprocess.run(
             cmd,
             capture_output=True,
@@ -34,16 +36,16 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
         )
         
         if result.returncode != 0:
-            print(f"Error running comparison script: {result.stderr}")
+            logger.error(f"Error running comparison script: {result.stderr}")
             return False
             
         is_valid = result.stdout.strip() == 'true'
         
         if is_valid:
-            print("✅ Code validation passed")
+            logger.success("Code validation passed")
             return True
         else:
-            print("❌ Code validation failed - functionality changed")
+            logger.error("Code validation failed - functionality changed")
 
             # Show colored diff
             diff_result = subprocess.run(

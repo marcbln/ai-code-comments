@@ -28,6 +28,10 @@ def comment(
     use_udiff_coder: bool = typer.Option(
         False, "--diff", 
         help="Output changes as unified diff patch instead of full file"
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v",
+        help="Enable verbose output"
     )
 ):
     """
@@ -39,10 +43,13 @@ def comment(
     - Preserves original code structure
     """
     try:
+        from ..utils.logger import logger
+        logger.set_verbose(verbose)
+        
         with console.status("[bold green]Processing PHP file...", spinner="dots"):
-
             # Select strategy based on response type
             strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
+            logger.debug(f"Using strategy: {strategy.__class__.__name__}")
 
             result = improveDocumentationOfPhpFile(file_path, strategy=strategy, model=model)
             console.print(f"✅ [green]Processed {file_path.name} in", end="")

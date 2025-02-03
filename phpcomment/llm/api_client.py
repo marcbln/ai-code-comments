@@ -86,7 +86,8 @@ class LLMClient:
 
 
 
-        print(f"LLM Prompt:\n{userPrompt}")
+        from ..utils.logger import logger
+        logger.debug(f"LLM Prompt:\n{userPrompt}")
 
         try:
             # if len(prompt) > 12000:  # Add size validation
@@ -113,12 +114,11 @@ class LLMClient:
             }
 
             api_start = time.time()
-            if verbose:
-                print(f"🚀 Sending request to {self.model}...")
-                print("🔍 Full Request Details:")
-                print(f"URL: {self.base_url}/chat/completions")
-                print(f"Headers: {json.dumps(requestHeaders, indent=4)}")
-                print(f"Body: {json.dumps(requestBody, indent=4)}")
+            logger.debug(f"Sending request to {self.model}...")
+            logger.debug("Full Request Details:")
+            logger.debug(f"URL: {self.base_url}/chat/completions")
+            logger.debug(f"Headers: {json.dumps(requestHeaders, indent=4)}")
+            logger.debug(f"Body: {json.dumps(requestBody, indent=4)}")
 
             content = self.provider.create_completion(self.model, messages, verbose)
 
@@ -132,7 +132,6 @@ class LLMClient:
                 f"- Model: {self.model}\n"
                 f"- Provider: {self.provider_name}\n"
                 f"- API Key: {self.api_key[:10]}...{self.api_key[-4:]}\n"
-                f"- Code Length: {len(php_code)} chars\n"
                 f"- Prompt Length: {len(userPrompt)} chars\n"
             )
             raise RuntimeError(f"LLM API failed: {str(e)}\n{debug_info}") from e

@@ -1,26 +1,16 @@
-# ---- Rich Output Utilities ----
+# ---- Output Utilities ----
 # File: phpcomment/utils/output.py
 
-from rich.console import Console
-from rich.theme import Theme
-
-custom_theme = Theme({
-    "info": "dim cyan",
-    "warning": "magenta",
-    "error": "bold red",
-    "success": "green",
-})
-
-console = Console(theme=custom_theme)
+from .logger import logger
 
 def print_success(message: str) -> None:
     """Display success message with rich formatting"""
-    console.print(f"✓ {message}", style="success")
+    logger.success(message)
 
 def print_error(message: str) -> None:
     """Display error message with rich formatting"""
-    console.print(f"✗ {message}", style="error")
+    logger.error(message)
 
 def print_warning(message: str) -> None:
     """Display warning message with rich formatting"""
-    console.print(f"⚠️ {message}", style="warning")
+    logger.warning(message)
