@@ -60,9 +60,7 @@ class MyPatcher:
         modified = []
 
         for line in hunk_lines:
-            if not line.strip():
-                continue  # Skip empty lines
-
+            # Handle the line based on its prefix, preserving empty lines
             if line.startswith(' '):
                 # Context line (unchanged)
                 original.append(line[1:])
@@ -73,6 +71,10 @@ class MyPatcher:
             elif line.startswith('+'):
                 # Addition line (only in modified)
                 modified.append(line[1:])
+            elif not line:
+                # Empty line should be treated as context
+                original.append('')
+                modified.append('')
 
         return PatchHunk(original, modified)
 
@@ -89,7 +91,7 @@ class MyPatcher:
         for i in range(len(content)):
             matches = True
             for j, line in enumerate(original_lines):
-                if i + j >= len(content) or content[i + j].rstrip() != line.rstrip():
+                if i + j >= len(content) or content[i + j] != line:
                     matches = False
                     break
             if matches:
@@ -118,6 +120,7 @@ class MyPatcher:
         """Apply the patch to the source content and return the result."""
         self.log(f"\n=== Starting patch application ===")
 
+        # Split content preserving empty lines
         content_lines = source_content.splitlines()
         hunks = self.parse_patch_hunks(patch_content)
         new_content = content_lines
