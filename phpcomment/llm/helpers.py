@@ -1,6 +1,7 @@
 import re
 import tempfile
 from pathlib import Path
+from phpcomment.utils.logger import logger
 
 
 class MyHelpers:
@@ -32,7 +33,8 @@ class MyHelpers:
     def writeTempCodeFile(cls, content: str, suffix: str = '.php') -> Path:
         # Create temporary file with new content
         tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
-        print(f"📝 Writing temporary file to {tmp_file.name} with content:\n{content}")
+        logger.info(f"Writing temporary file to {tmp_file.name}")
+        logger.debug(f"Content of {tmp_file.name}:\n{content}")
         tmp_file.write(content)
         tmp_file.close()
 
@@ -44,7 +46,7 @@ class MyHelpers:
         suffix = pathOrigFile.suffix
         # Copy original file to temporary file
         tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
-        print(f"📝 Copying {pathOrigFile} to {tmp_file.name}")
+        logger.debug(f"Copying {pathOrigFile} to {tmp_file.name}")
         with open(pathOrigFile, 'r') as file:
             tmp_file.write(file.read())
         tmp_file.close()

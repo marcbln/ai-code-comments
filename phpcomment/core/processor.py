@@ -10,6 +10,7 @@ from typing import Optional
 from ..llm.api_client import LLMClient
 from ..llm.prompts import DocumentationPrompts
 from ..strategies import WholeFileStrategy, UDiffStrategy, ChangeStrategy
+from ..utils.logger import logger
 
 import time
 
@@ -54,15 +55,15 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
                 text=True
             )
             if diff_result.stdout or diff_result.stderr:
-                print("\nDifferences found:")
-                print(diff_result.stdout or diff_result.stderr)
+                logger.warning("Differences found:")
+                logger.info(diff_result.stdout or diff_result.stderr)
 
-            print(f">>>> original_file: {str(pathOriginalFile)}")
-            print(f">>>> modified_file: {str(pathModifiedCodeTempFile)}")
+            logger.debug(f"Original file: {str(pathOriginalFile)}")
+            logger.debug(f"Modified file: {str(pathModifiedCodeTempFile)}")
 
             return False
     except Exception as e:
-        print(f"Validation error: {str(e)}")
+        logger.error(f"Validation error: {str(e)}")
         return False
 
 def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
@@ -73,22 +74,22 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
 
     try:
         start_time = time.time()
-        print(f"⏳ Analyzing {len(originalCode)} characters...")
+        logger.info(f"⏳ Analyzing {len(originalCode)} characters...")
         
         # ---- send prompt to LLM ----
         systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(originalCode, strategy)
         llmResponseRaw = LLMClient(modelWithPrefix=model).sendRequest(systemPrompt, userPrompt)
-        print(f"✅ LLM request completed in {time.time() - start_time:.1f}s")
-        print(f">>>> LLM Response Raw:\n\n{llmResponseRaw}")
+        logger.success(f"LLM request completed in {time.time() - start_time:.1f}s")
+        logger.debug(f"LLM Response Raw:\n\n{llmResponseRaw}")
 
         # Apply changes using strategy (wholefile or udiff)
         pathModifiedCodeTempFile = strategy.process_llm_response(llmResponseRaw, pathOrigFile)
         if pathModifiedCodeTempFile is None:
-            print(f"⚠️ No changes were made to the file")
+            logger.warning("No changes were made to the file")
             return
 
 
-        print(f"✅ Temp file {pathModifiedCodeTempFile} was created.")
+        logger.success(f"Temp file {pathModifiedCodeTempFile} was created.")
         
         # Validate the changes
         is_valid = validate_php_code(pathOrigFile, pathModifiedCodeTempFile)
@@ -116,12 +117,12 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
                     text=True
                 )
             if diff_result.stdout or diff_result.stderr:
-                print("\n✅ Applied changes:")
-                print(diff_result.stdout or diff_result.stderr)
+                logger.success("Applied changes:")
+                logger.info(diff_result.stdout or diff_result.stderr)
                 # Copy the validated temporary file to the target location
                 shutil.copy2(pathModifiedCodeTempFile, pathOrigFile)
             else:
-                print("\n⚠️ No changes were made to the file")
+                logger.warning("No changes were made to the file")
             
             pathModifiedCodeTempFile.unlink()  # Clean up temp file after successful copy
         else:
