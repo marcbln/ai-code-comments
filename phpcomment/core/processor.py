@@ -112,7 +112,7 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
             else:
                 # Show standard diff of changes
                 diff_result = subprocess.run(
-                    ['diff', '--color=always', str(pathOrigFile), str(pathModifiedCodeTempFile)],
+                    ['diff', '-u', '--color=always', str(pathOrigFile), str(pathModifiedCodeTempFile)],
                     capture_output=True,
                     text=True
                 )
