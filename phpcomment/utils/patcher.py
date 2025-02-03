@@ -1,8 +1,6 @@
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
-from rich.console import Console
-
-console = Console()
+from phpcomment.utils.logger import logger
 
 
 @dataclass
@@ -23,8 +21,7 @@ class MyPatcher:
 
     def log(self, message: str) -> None:
         """Print a log message if verbose mode is enabled."""
-        if self.verbose:
-            console.log(message)
+        logger.debug(message)
 
     def parse_patch_hunks(self, patch_content: str) -> List[PatchHunk]:
         """Parse patch file content into a list of PatchHunk objects."""
