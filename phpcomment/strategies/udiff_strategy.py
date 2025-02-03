@@ -46,7 +46,9 @@ class UDiffStrategy(ChangeStrategy):
         # Apply patch using MyPatcher
         patcher = MyPatcher(verbose=False)
         try:
-            modified_content = patcher.apply_patch(original_content, llmResponseRaw)
+            # strip clutter (if any) from the raw llm response
+            cleanedResponse = MyHelpers.strip_code_block_markers(llmResponseRaw)
+            modified_content = patcher.apply_patch(original_content, cleanedResponse)
         except Exception as e:
             print(f"Error applying patch: {str(e)}")
             return None
