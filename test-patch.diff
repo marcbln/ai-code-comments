@@ -1,26 +1,16 @@
---- /tmp/tmplcx340w0.php	2025-02-03 00:03:55.438534297 +0100
-+++ some-php-file.php	2025-02-03 00:04:17.602005932 +0100
-@@ -5,10 +5,21 @@
+--- some-php-file.php	2025-02-03 01:14:52.037780857 +0100
++++ some-php-file-2.php	2025-02-03 01:51:51.210459245 +0100
+@@ -5,10 +5,13 @@
  use PhpParser\Node;
  use PhpParser\NodeVisitorAbstract;
  
-+/**
-+ * Class MyNodeVisitor
-+ * This class extends NodeVisitorAbstract and provides custom logic for traversing nodes.
-+ * It can be used to modify or analyze nodes in a PHP codebase.
-+ */
++// hello
  class MyNodeVisitor extends NodeVisitorAbstract
  {
-+    /**
-+     * Called before the traversal of a node tree begins.
-+     * This method can be used to perform any setup or initialization tasks before the traversal.
-+     *
-+     * @param array $nodes An array of nodes to be traversed.
-+     */
++   // world
      public function beforeTraverse(array $nodes)
      {
          return null;
      }
--}
-+}
-\ No newline at end of file
++
+ }
