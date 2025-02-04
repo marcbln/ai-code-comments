@@ -119,6 +119,8 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
             if diff_result.stdout or diff_result.stderr:
                 logger.success("Applied changes:")
                 print(diff_result.stdout or diff_result.stderr)
+                # same permissions as original file
+                shutil.copystat(pathOrigFile, pathModifiedCodeTempFile)
                 # Copy the validated temporary file to the target location
                 shutil.copy2(pathModifiedCodeTempFile, pathOrigFile)
             else:
