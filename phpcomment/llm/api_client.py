@@ -86,8 +86,7 @@ class LLMClient:
 
 
 
-        from ..utils.logger import logger
-        logger.debug(f"LLM Prompt:\n{userPrompt}", highlight=False)
+        logger.debug(f"LLM Prompt:\n{userPrompt}")
 
         try:
             # if len(prompt) > 12000:  # Add size validation

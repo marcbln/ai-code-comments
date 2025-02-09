@@ -21,8 +21,7 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
         if not compare_script.exists():
             raise RuntimeError(f"Comparison script not found at {compare_script}")
         
-        from ..utils.logger import logger
-        
+
         logger.info("Validating code changes...")
             
         # Run comparison

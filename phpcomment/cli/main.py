@@ -13,6 +13,7 @@ from phpcomment.strategies import UDiffStrategy, WholeFileStrategy
 from ..core.processor import improveDocumentationOfPhpFile
 from ..utils.error_handler import handle_error
 from ..utils.output import print_success
+from ..utils.logger import logger
 
 app = typer.Typer(
     help="Automated PHP documentation tool",
@@ -47,7 +48,6 @@ def comment(
     - Preserves original code structure
     """
     try:
-        from ..utils.logger import logger
         logger.set_verbose(verbose)
         
         with console.status("[bold green]Processing PHP file...", spinner="dots"):
