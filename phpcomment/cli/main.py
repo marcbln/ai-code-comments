@@ -5,7 +5,9 @@ import typer
 from pathlib import Path
 from typing import Optional
 from rich.console import Console
-from ..utils.logger import logger
+
+from phpcomment.config import Config
+from ..utils.logger import myLogger
 
 
 
@@ -13,7 +15,7 @@ from phpcomment.strategies import UDiffStrategy, WholeFileStrategy
 from ..core.processor import improveDocumentationOfPhpFile
 from ..utils.error_handler import handle_error
 from ..utils.output import print_success
-from ..utils.logger import logger
+from ..utils.logger import myLogger
 
 app = typer.Typer(
     help="Automated PHP documentation tool",
@@ -26,7 +28,7 @@ def comment(
     file_path: Path = typer.Argument(..., help="Path to PHP file to document", exists=True),
     model: str = typer.Option(
         #"openrouter/qwen/qwen-2.5-coder-32b-instruct",
-        "openrouter/deepseek/deepseek-r1-distill-qwen-32b",
+        Config.DEFAULT_MODEL,
         help="Model to use for processing (openrouter/... or deepseek/...)",
         show_default=True
     ),
@@ -48,15 +50,14 @@ def comment(
     - Preserves original code structure
     """
     try:
-        logger.set_verbose(verbose)
-        
-        with console.status("[bold green]Processing PHP file...", spinner="dots"):
-            # Select strategy based on response type
-            strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
-            logger.debug(f"Using strategy: {strategy.__class__.__name__}")
+        myLogger.set_verbose(verbose)
+        # Select strategy based on response type
+        strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
+        myLogger.debug(f"Using strategy: {strategy.__class__.__name__}")
 
-            improveDocumentationOfPhpFile(file_path, model=model, strategy=strategy)
-            print_success(f"\n✅ Successfully updated documentation in [bold]{file_path}[/bold]")
+        myLogger.info(f"Sending request to LLM {model}...")
+        improveDocumentationOfPhpFile(file_path, model=model, strategy=strategy)
+        print_success(f"\n✅ Successfully updated documentation in [bold]{file_path}[/bold]")
             
     except Exception as e:
         handle_error(e)

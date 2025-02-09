@@ -3,6 +3,8 @@ import requests
 from .base import LLMProvider
 from typing import Optional
 
+from ...config import Config
+
 
 class OpenRouterApiAdapter(LLMProvider):
     def __init__(self, base_url: Optional[str] = None):
@@ -25,7 +27,7 @@ class OpenRouterApiAdapter(LLMProvider):
         data = {
             "model": model,
             "messages": messages,
-            "temperature": 0.2,
+            "temperature": Config.DEFAULT_TEMPERATURE,
         }
 
         return data, headers

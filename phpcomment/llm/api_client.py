@@ -1,11 +1,9 @@
 import json
-import re
 import time
-from typing import Dict, Type, Optional
-from .prompts import DocumentationPrompts
-from .providers import LLMProvider, OpenAIApiAdapter, OpenRouterApiAdapter
-from .helpers import MyHelpers
-from ..strategies import ChangeStrategy, UDiffStrategy
+from typing import Optional
+
+from .providers import OpenAIApiAdapter, OpenRouterApiAdapter
+from ..utils.logger import myLogger
 
 
 class LLMClient:
@@ -86,7 +84,7 @@ class LLMClient:
 
 
 
-        logger.debug(f"LLM Prompt:\n{userPrompt}")
+        myLogger.debug(f"LLM Prompt:\n{userPrompt}", highlight=False)
 
         try:
             # if len(prompt) > 12000:  # Add size validation
@@ -113,11 +111,11 @@ class LLMClient:
             }
 
             api_start = time.time()
-            logger.debug(f"Sending request to {self.model}...")
-            logger.debug("Full Request Details:")
-            logger.debug(f"URL: {self.base_url}/chat/completions")
-            logger.debug(f"Headers: {json.dumps(requestHeaders, indent=4)}")
-            logger.debug(f"Body: {json.dumps(requestBody, indent=4)}")
+            myLogger.debug(f"Sending request to {self.model}...")
+            myLogger.debug("Full Request Details:")
+            myLogger.debug(f"URL: {self.base_url}/chat/completions")
+            myLogger.debug(f"Headers: {json.dumps(requestHeaders, indent=4)}")
+            myLogger.debug(f"Body: {json.dumps(requestBody, indent=4)}")
 
             content = self.provider.create_completion(self.model, messages, verbose)
 

@@ -2,6 +2,7 @@ import os
 from openai import OpenAI, APIError
 from typing import Optional
 from .base import LLMProvider
+from ...config import Config
 
 
 class OpenAIApiAdapter(LLMProvider):
@@ -49,7 +50,7 @@ class OpenAIApiAdapter(LLMProvider):
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=0.2,
+                temperature=Config.DEFAULT_TEMPERATURE,
                 max_tokens=self.max_tokens
             )
             return response.choices[0].message.content

@@ -1,16 +1,16 @@
 # ---- Output Utilities ----
 # File: phpcomment/utils/output.py
 
-from .logger import logger
+from .logger import myLogger
 
 def print_success(message: str) -> None:
     """Display success message with rich formatting"""
-    logger.success(message)
+    myLogger.success(message)
 
 def print_error(message: str) -> None:
     """Display error message with rich formatting"""
-    logger.error(message)
+    myLogger.error(message)
 
 def print_warning(message: str) -> None:
     """Display warning message with rich formatting"""
-    logger.warning(message)
+    myLogger.warning(message)

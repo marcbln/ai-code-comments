@@ -124,9 +124,15 @@ class PatcherV3:
             if prefix in (' ', '+'):
                 after.append(content)
 
+        # ---- print the before/after state with line numbers
         self.console.print(f"[info]Converted hunk to before/after state[/info]")
-        self.console.print(f"[blue]Before[/blue]\n```\n{''.join(before)}\n```")
-        self.console.print(f"[blue]After[/blue]\n```\n{''.join(after)}\n```")
+        print(f"<<<<<<<< ORIGINAL")
+        for i, line in enumerate(before, start=1):
+            print(f"{i:4d} | {line}", end='')
+        print("========")
+        for i, line in enumerate(after, start=1):
+            print(f"{i:4d} | {line}", end='')
+        print(f">>>>>>>> UPDATED")
 
         return ''.join(before), ''.join(after)
 

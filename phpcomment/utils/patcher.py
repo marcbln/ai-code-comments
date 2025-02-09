@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
-from phpcomment.utils.logger import logger
+from phpcomment.utils.logger import myLogger
 
 
 @dataclass
@@ -23,7 +23,7 @@ class MyPatcher:
 
     def log(self, message: str) -> None:
         """Print a log message if verbose mode is enabled."""
-        logger.debug(message)
+        myLogger.debug(message)
 
     def parse_patch_hunks(self, patch_content: str) -> List[PatchHunk]:
         """Parse patch file content into a list of PatchHunk objects."""
@@ -49,7 +49,7 @@ class MyPatcher:
         if current_hunk:
             hunks.append(self._parse_hunk(current_hunk))
 
-        logger.info(f"Created {len(hunks)} search-replace pairs from patch")
+        myLogger.info(f"Created {len(hunks)} search-replace pairs from patch")
         for i, hunk in enumerate(hunks, 1):
             self.log(f"Hunk {i}: {len(hunk.original)} original lines -> {len(hunk.modified)} modified lines")
         return hunks
@@ -119,7 +119,7 @@ class MyPatcher:
 
     def apply_patch(self, source_content: str, patch_content: str) -> str:
         """Apply the patch to the source content and return the result."""
-        logger.info(f"Starting to apply patch...")
+        myLogger.info(f"Starting to apply patch...")
 
         # Split content preserving empty lines
         content_lines = source_content.splitlines()
@@ -131,5 +131,5 @@ class MyPatcher:
             self.log(f"\n=== Processing hunk {hunk_num}/{len(hunks)} ===")
             new_content = self._apply_hunk(new_content, hunk)
 
-        logger.info("Patch application completed")
+        myLogger.info("Patch application completed")
         return '\n'.join(new_content) + '\n'

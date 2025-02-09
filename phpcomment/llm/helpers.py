@@ -3,7 +3,7 @@ import re
 import tempfile
 import uuid
 from pathlib import Path
-from phpcomment.utils.logger import logger
+from phpcomment.utils.logger import myLogger
 
 
 class MyHelpers:
@@ -41,8 +41,8 @@ class MyHelpers:
     #         suffix: The suffix to use for the temporary file (e.g., '.php')
     #     """
     #     tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
-    #     logger.info(f"Writing temporary file to {tmp_file.name}")
-    #     logger.debug(f"Content of {tmp_file.name}:\n{content}")
+    #     myLogger.info(f"Writing temporary file to {tmp_file.name}")
+    #     myLogger.debug(f"Content of {tmp_file.name}:\n{content}")
     #     tmp_file.write(content)
     #     tmp_file.close()
     #
@@ -63,8 +63,8 @@ class MyHelpers:
         file_path = os.path.join(temp_dir, filename)
 
         with open(file_path, 'w') as f:
-            logger.info(f"Writing temporary file to {file_path}")
-            logger.debug(f"Content of {file_path}:\n{content}")
+            myLogger.info(f"Writing temporary file to {file_path}")
+            myLogger.debug(f"Content of {file_path}:\n{content}")
             f.write(content)
 
         return Path(file_path)
@@ -84,7 +84,7 @@ class MyHelpers:
         code_path = os.path.join("/tmp", f"{basename}{suffix}")
 
         with open(code_path, 'w') as f:
-            logger.info(f"💾 writing file {code_path}")
+            myLogger.info(f"💾 writing file {code_path}")
             f.write(content)
 
         return Path(code_path)
@@ -95,7 +95,7 @@ class MyHelpers:
         suffix = pathOrigFile.suffix
         # Copy original file to temporary file
         tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
-        logger.debug(f"Copying {pathOrigFile} to {tmp_file.name}")
+        myLogger.debug(f"Copying {pathOrigFile} to {tmp_file.name}")
         with open(pathOrigFile, 'r') as file:
             tmp_file.write(file.read())
         tmp_file.close()

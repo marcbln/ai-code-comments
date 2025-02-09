@@ -8,7 +8,7 @@ from ..llm.helpers import MyHelpers
 from ..utils.patcher import MyPatcher
 from ..utils.patcher_v3 import PatcherV3
 from ..utils.patcher_v4 import PatcherV4
-from ..utils.logger import logger
+from ..utils.logger import myLogger
 
 
 class UDiffStrategy(ChangeStrategy):
@@ -77,14 +77,15 @@ class UDiffStrategy(ChangeStrategy):
                     print(f"WARNING: More than one code block found")
 
             # ---- write the patch to a temp file (for debugging only)
-            logger.debug(f"Cleaned Response:\n>>>>>>\n{extractedCodeBlock}\n<<<<<<", highlight=False)
+            myLogger.debug(f"Cleaned Response:\n>>>>>>\n{extractedCodeBlock}\n<<<<<<", highlight=False)
             MyHelpers.writeTempFileV2(hash, extractedCodeBlock, '-patch.diff')
 
             # ---- apply patch
             modified_content = patcher.apply_patch(original_content, extractedCodeBlock)
         except Exception as e:
-            logger.error(f"Error applying patch: {str(e)}")
-            return None
+            raise e
+            # myLogger.error(f"Error applying patch: {str(e)}")
+            # return None
             
         # Write modified content to temp file
         pathTempPhpFile = MyHelpers.writeTempFileV2(hash, modified_content, '-patched.php')

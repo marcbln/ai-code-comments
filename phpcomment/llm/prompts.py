@@ -7,7 +7,7 @@ from phpcomment.strategies import ChangeStrategy
 class DocumentationPrompts:
     """Contains prompt templates for documentation generation"""
 
-    SYSTEM_PROMPT = "You are a senior PHP developer. You are tasked to add or improve comments (docblocks and section comments) in a legacy php codebase."
+    SYSTEM_PROMPT = "You are a senior PHP developer. You are tasked to improve the quality of a legacy php codebase by adding or improving comments (docblocks and section comments)."
 
     @classmethod
     def get_full_prompt(cls, php_code: str, strategy: ChangeStrategy) -> tuple[str, str]:

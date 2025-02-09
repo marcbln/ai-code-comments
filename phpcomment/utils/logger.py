@@ -2,10 +2,10 @@ from rich.console import Console
 from rich.theme import Theme
 from typing import Optional
 
-class Logger:
+class MyLogger:
     """Global logger with verbosity support"""
     
-    _instance: Optional['Logger'] = None
+    _instance: Optional['MyLogger'] = None
     
     def __init__(self):
         self.verbose = False
@@ -17,9 +17,9 @@ class Logger:
         }))
 
     @classmethod
-    def get_instance(cls) -> 'Logger':
+    def get_instance(cls) -> 'MyLogger':
         if cls._instance is None:
-            cls._instance = Logger()
+            cls._instance = MyLogger()
         return cls._instance
 
     def set_verbose(self, verbose: bool):
@@ -47,4 +47,4 @@ class Logger:
         self.console.print(f"✗ {message}", style="error", **kwargs)
 
 # Global logger instance
-logger = Logger.get_instance()
+myLogger = MyLogger.get_instance()

@@ -3,7 +3,7 @@ from rich.console import Console
 from rich.theme import Theme
 import difflib
 
-from .logger import logger
+from .logger import myLogger
 
 class PatchError(Exception):
     """Base exception for patch application errors"""
@@ -135,9 +135,15 @@ class PatcherV4:
         before_text = ''.join(before)
         after_text = ''.join(after)
 
+        # ---- print the before/after state with line numbers
         self.console.print(f"[info]Converted hunk to before/after state[/info]")
-        self.console.print(f"[blue]Before[/blue]\n{before_text}", highlight=False)
-        self.console.print(f"[blue]After[/blue]\n{after_text}", highlight=False)
+        print(f"<<<<<<<< ORIGINAL")
+        for i, line in enumerate(before, start=1):
+            print(f"{i:4d} | {line}", end='')
+        print("========")
+        for i, line in enumerate(after, start=1):
+            print(f"{i:4d} | {line}", end='')
+        print(f">>>>>>>> UPDATED")
 
         return before_text, after_text
 
@@ -212,7 +218,7 @@ class PatcherV4:
             start = idx + 1
 
         if len(exact_matches) == 1:
-            logger.success(f"💡 Found exact match at {exact_matches[0]}")
+            myLogger.success(f"💡 Found exact match at {exact_matches[0]}")
             return exact_matches[0]
 
         elif len(exact_matches) > 1:

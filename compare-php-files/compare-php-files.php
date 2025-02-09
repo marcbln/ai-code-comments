@@ -5,13 +5,23 @@ require 'vendor/autoload.php';
 use App\PhpCleaner;
 
 
-function main(string $file1, string $file2, bool $debug)
+/**
+ * TODO: rename this method to something more descriptive
+ */
+function main(string $file1, string $file2, bool $debug): bool
 {
     $cleaner = new PhpCleaner();
 
+try {
     $code1 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file1));
     $code2 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file2));
+} catch( \PhpParser\Error $e) {
 
+   if ($debug) {
+       echo "PHP Parsing Error: {$e->getMessage()}\n";
+   }
+   return false;
+  }
     $equal = $code1 === $code2;
 
     if ($debug && !$equal) {
