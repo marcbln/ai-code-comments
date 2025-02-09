@@ -20,7 +20,7 @@ class DocumentationPrompts:
             - Do NOT add redundant PHPDoc tags to docblocks, e.g. `@return void` or `@param string $foo` without any additional information.
             - inside functions use section comments, starting with `// ----`, explaining key parts of the code, if needed.
             - in big switch-case statements, add a section comment (starting with // ----) for each case.
-            - Keep ALL original code except documentation.
+            - Keep ALL original code except documentation, do NOT add or remove any code. only comments.
             - NEVER replace code with comments like "// ... rest of the code remains unchanged ..."
             """)
 

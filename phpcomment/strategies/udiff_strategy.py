@@ -1,9 +1,12 @@
+import hashlib
+
 from .base import ChangeStrategy
 from pathlib import Path
 from textwrap import dedent
 
 from ..llm.helpers import MyHelpers
 from ..utils.patcher import MyPatcher
+from ..utils.patcher_v3 import PatcherV3
 
 
 class UDiffStrategy(ChangeStrategy):
@@ -15,7 +18,7 @@ class UDiffStrategy(ChangeStrategy):
             - Start response with '--- original.php'
             - Second line must be '+++ modified.php'
             - Start each hunk of changes with a `@@ ... @@` line.
-            - DON'T include line numbers like `diff -U0` does (The user's patch tool doesn't need them). just use literally `@@ ... @@` instead.
+            - DON'T include line numbers like `diff -U0` does, The user's patch tool doesn't need them. Just use literally `@@ ... @@` instead.
             - The user's patch tool needs CORRECT patches that apply cleanly against the current contents of the file!
             - Think carefully and make sure you include and mark all lines that need to be removed or changed as `-` lines.
             - Make sure you mark all new or modified lines with `+`.
@@ -42,19 +45,27 @@ class UDiffStrategy(ChangeStrategy):
         # Read original content
         with open(pathOrigFile, 'r') as f:
             original_content = f.read()
-            
+
+        # build hash form original content (for temp file naming)
+        hash = hashlib.sha256(original_content.encode('utf-8')).hexdigest()
+
+
         # Apply patch using MyPatcher
-        patcher = MyPatcher(verbose=False)
+        # patcher = MyPatcher(verbose=False)
+        patcher = PatcherV3()
         try:
             # strip clutter (if any) from the raw llm response
             cleanedResponse = MyHelpers.strip_code_block_markers(llmResponseRaw)
+            # write the patch to a temp file for debugging
+            MyHelpers.writeTempFileV2(hash, cleanedResponse, '.diff')
+            # apply patch
             modified_content = patcher.apply_patch(original_content, cleanedResponse)
         except Exception as e:
             print(f"Error applying patch: {str(e)}")
             return None
             
         # Write modified content to temp file
-        pathTempPhpFile = MyHelpers.writeTempCodeFile(modified_content)
+        pathTempPhpFile = MyHelpers.writeTempFileV2(hash, modified_content, '.php')
         
         return pathTempPhpFile
 

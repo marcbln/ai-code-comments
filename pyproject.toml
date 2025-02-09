@@ -22,4 +22,5 @@ dependencies = [
 [project.scripts]
 phpcomment = "phpcomment.cli.main:main"
 patch = "phpcomment.cli.patch:main"
+test-patcher-v3 = "phpcomment.cli.test_patcher_v3:main"
 

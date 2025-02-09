@@ -12,6 +12,8 @@ class PatchHunk:
 
 class MyPatcher:
     """
+    FIXME: THIS DOES NOT WORK AS INTENDED, IT DOES NOT APPLY ALL HUNKS CORRECTLY, BUT SOME (THE FIRST ONE/S?) WORK
+
     Handles the parsing and application of patches using unified diff format.
     This implementation treats hunks as search-replace pairs.
     """
