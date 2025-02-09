@@ -13,7 +13,7 @@ class DocumentationPrompts:
     def get_full_prompt(cls, php_code: str, strategy: ChangeStrategy) -> tuple[str, str]:
         """Return complete prompt with all original rules and formatting"""
         user_prompt = dedent(f"""
-            Analyze the PHP_CODE and apply following rules:
+            Improve the PHP_CODE by adding or improving comments (docblocks and section comments). Apply the following rules:
 
             - Each class should have a docblock explaining what the class does. If a docblock already exists, try to improve it.
             - Each method should have a docblock explaining what the method does, except setters and getters.

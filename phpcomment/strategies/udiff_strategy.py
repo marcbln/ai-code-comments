@@ -7,6 +7,7 @@ from textwrap import dedent
 from ..llm.helpers import MyHelpers
 from ..utils.patcher import MyPatcher
 from ..utils.patcher_v3 import PatcherV3
+from ..utils.patcher_v4 import PatcherV4
 
 
 class UDiffStrategy(ChangeStrategy):
@@ -40,7 +41,7 @@ class UDiffStrategy(ChangeStrategy):
             """)
 
     def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path|None:
-        print("🔄 Applying changes via patch...")
+        print("🔄 Applying changes by patch with custom pacher...")
 
         # Read original content
         with open(pathOrigFile, 'r') as f:
@@ -55,15 +56,26 @@ class UDiffStrategy(ChangeStrategy):
         MyHelpers.writeTempFileV2(hash, original_content, '-original.php')
 
 
-        # Apply patch using PatcherV3
+        # Apply patch using out own patcher
         # patcher = MyPatcher(verbose=False)
-        patcher = PatcherV3()
+        patcher = PatcherV4(continue_on_error=True, fuzzy_match=True)
         try:
+            modifiedResponse, blocks = MyHelpers.extract_code_blocks(llmResponseRaw)
             # strip clutter (if any) from the raw llm response
-            cleanedResponse = MyHelpers.strip_code_block_markers(llmResponseRaw)
-            # write the patch to a temp file (for debugging only)
-            MyHelpers.writeTempFileV2(hash, cleanedResponse, '.diff')
-            # apply patch
+            # cleanedResponse = MyHelpers.strip_code_block_markers(llmResponseRaw)
+
+            # ---- write the patch to a temp file (for debugging only)
+            if len(blocks) > 1:
+                print(f"WARNING: More than one code block found")
+            cleanedResponse = blocks[0]
+            print(f"DEBUG: Extracted code block: {cleanedResponse}")
+
+
+            print(modifiedResponse, blocks)
+            exit(77)
+
+            MyHelpers.writeTempFileV2(hash, cleanedResponse, '-patch.diff')
+            # ---- apply patch
             modified_content = patcher.apply_patch(original_content, cleanedResponse)
         except Exception as e:
             print(f"Error applying patch: {str(e)}")

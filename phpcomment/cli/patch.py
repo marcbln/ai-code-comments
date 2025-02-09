@@ -4,6 +4,7 @@ import typer
 from rich import print
 from phpcomment.utils.patcher import MyPatcher
 from phpcomment.utils.patcher_v3 import PatcherV3
+from phpcomment.utils.patcher_v4 import PatcherV4
 
 
 def patch_files(
@@ -20,7 +21,7 @@ def patch_files(
     """
     try:
         # patcher = MyPatcher(verbose=verbose)
-        patcher = PatcherV3(continue_on_error=True)
+        patcher = PatcherV4(continue_on_error=True)
         # Read input files
         with open(source_file) as f:
             source_content = f.read()

@@ -101,3 +101,35 @@ class MyHelpers:
         tmp_file.close()
 
         return Path(tmp_file.name)
+
+
+    @staticmethod
+    def extract_code_blocks(text):
+        """
+        Extracts code blocks from text and replaces them with numbered placeholders.
+
+        Args:
+            text (str): Input text containing code blocks marked with triple backticks
+
+        Returns:
+            tuple: (modified_text, list_of_blocks)
+                - modified_text: Original text with code blocks replaced by [CODE_BLOCK_{n}]
+                - list_of_blocks: List of extracted code blocks with their language info
+        """
+        # Pattern to match code blocks including language identifier
+        pattern = r'```([^\n]*)\n(.*?)```'
+        blocks = []
+
+        def replace_func(match):
+            language = match.group(1).strip()
+            code = match.group(2).strip()
+            blocks.append({
+                'language': language,
+                'code': code
+            })
+            return f'[CODE_BLOCK_{len(blocks)}]'
+
+        # Replace code blocks with placeholders and collect blocks
+        modified_text = re.sub(pattern, replace_func, text, flags=re.DOTALL)
+
+        return modified_text, blocks

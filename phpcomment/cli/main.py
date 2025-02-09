@@ -21,7 +21,8 @@ console = Console()
 def comment(
     file_path: Path = typer.Argument(..., help="Path to PHP file to document", exists=True),
     model: str = typer.Option(
-        "openrouter/qwen/qwen-2.5-coder-32b-instruct",
+        #"openrouter/qwen/qwen-2.5-coder-32b-instruct",
+        "openrouter/deepseek/deepseek-r1-distill-qwen-32b",
         help="Model to use for processing (openrouter/... or deepseek/...)",
         show_default=True
     ),
