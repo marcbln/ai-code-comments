@@ -41,22 +41,27 @@ class UDiffStrategy(ChangeStrategy):
 
     def process_llm_response(self, llmResponseRaw: str, pathOrigFile) -> Path|None:
         print("🔄 Applying changes via patch...")
-        
+
         # Read original content
         with open(pathOrigFile, 'r') as f:
             original_content = f.read()
 
+
         # build hash form original content (for temp file naming)
-        hash = hashlib.sha256(original_content.encode('utf-8')).hexdigest()
+        hash = hashlib.sha256(original_content.encode('utf-8')).hexdigest()[:8]
 
 
-        # Apply patch using MyPatcher
+        # write the original content to a temp file (for debugging only)
+        MyHelpers.writeTempFileV2(hash, original_content, '-original.php')
+
+
+        # Apply patch using PatcherV3
         # patcher = MyPatcher(verbose=False)
         patcher = PatcherV3()
         try:
             # strip clutter (if any) from the raw llm response
             cleanedResponse = MyHelpers.strip_code_block_markers(llmResponseRaw)
-            # write the patch to a temp file for debugging
+            # write the patch to a temp file (for debugging only)
             MyHelpers.writeTempFileV2(hash, cleanedResponse, '.diff')
             # apply patch
             modified_content = patcher.apply_patch(original_content, cleanedResponse)
@@ -65,7 +70,7 @@ class UDiffStrategy(ChangeStrategy):
             return None
             
         # Write modified content to temp file
-        pathTempPhpFile = MyHelpers.writeTempFileV2(hash, modified_content, '.php')
+        pathTempPhpFile = MyHelpers.writeTempFileV2(hash, modified_content, '-patched.php')
         
         return pathTempPhpFile
 

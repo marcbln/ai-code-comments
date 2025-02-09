@@ -3,6 +3,8 @@ from typing import Optional
 import typer
 from rich import print
 from phpcomment.utils.patcher import MyPatcher
+from phpcomment.utils.patcher_v3 import PatcherV3
+
 
 def patch_files(
         source_file: Path = typer.Argument(..., help="Original file to patch"),
@@ -17,8 +19,8 @@ def patch_files(
     If dest_file is provided, the source file remains unchanged and the result is written to dest_file.
     """
     try:
-        patcher = MyPatcher(verbose=verbose)
-
+        # patcher = MyPatcher(verbose=verbose)
+        patcher = PatcherV3(continue_on_error=True)
         # Read input files
         with open(source_file) as f:
             source_content = f.read()
