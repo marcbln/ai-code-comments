@@ -123,10 +123,11 @@ class MyHelpers:
         def replace_func(match):
             language = match.group(1).strip()
             code = match.group(2).strip()
-            blocks.append({
-                'language': language,
-                'code': code
-            })
+            # blocks.append({
+            #     'language': language,
+            #     'code': code
+            # })
+            blocks.append(code)
             return f'[CODE_BLOCK_{len(blocks)}]'
 
         # Replace code blocks with placeholders and collect blocks
