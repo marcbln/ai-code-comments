@@ -8,6 +8,7 @@ from ..llm.helpers import MyHelpers
 from ..utils.patcher import MyPatcher
 from ..utils.patcher_v3 import PatcherV3
 from ..utils.patcher_v4 import PatcherV4
+from ..utils.logger import logger
 
 
 class UDiffStrategy(ChangeStrategy):
@@ -64,21 +65,25 @@ class UDiffStrategy(ChangeStrategy):
             # strip clutter (if any) from the raw llm response
             # cleanedResponse = MyHelpers.strip_code_block_markers(llmResponseRaw)
 
+            # ---- cleanup the response
+            if len(blocks) == 0:
+                # we assume that the response is a single code block
+                extractedCodeBlock = llmResponseRaw
+                print(f"DEBUG: No code blocks found in response - assuming full response is a single code block")
+            else:
+                # we assume that the response is a list of code blocks
+                extractedCodeBlock = blocks[0]
+                if len(blocks) > 1:
+                    print(f"WARNING: More than one code block found")
+
             # ---- write the patch to a temp file (for debugging only)
-            if len(blocks) > 1:
-                print(f"WARNING: More than one code block found")
-            cleanedResponse = blocks[0]
-            print(f"DEBUG: Extracted code block: {cleanedResponse}")
+            logger.debug(f"Cleaned Response:\n>>>>>>\n{extractedCodeBlock}\n<<<<<<", highlight=False)
+            MyHelpers.writeTempFileV2(hash, extractedCodeBlock, '-patch.diff')
 
-
-            print(modifiedResponse, blocks)
-            exit(77)
-
-            MyHelpers.writeTempFileV2(hash, cleanedResponse, '-patch.diff')
             # ---- apply patch
-            modified_content = patcher.apply_patch(original_content, cleanedResponse)
+            modified_content = patcher.apply_patch(original_content, extractedCodeBlock)
         except Exception as e:
-            print(f"Error applying patch: {str(e)}")
+            logger.error(f"Error applying patch: {str(e)}")
             return None
             
         # Write modified content to temp file

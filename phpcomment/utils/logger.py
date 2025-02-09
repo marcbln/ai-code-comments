@@ -25,26 +25,26 @@ class Logger:
     def set_verbose(self, verbose: bool):
         self.verbose = verbose
 
-    def debug(self, message: str):
+    def debug(self, message: str, **kwargs):
         """Log debug message only if verbose mode is enabled"""
         if self.verbose:
-            self.console.print(f"🔍 {message}", style="info")
+            self.console.print(f"🔍 {message}", style="info", **kwargs)
 
-    def info(self, message: str):
+    def info(self, message: str, **kwargs):
         """Log general information"""
-        self.console.print(message)
+        self.console.print(message, style="info", **kwargs)
 
-    def success(self, message: str):
+    def success(self, message: str, **kwargs):
         """Log success message"""
-        self.console.print(f"✓ {message}", style="success")
+        self.console.print(f"✓ {message}", style="success", **kwargs)
 
-    def warning(self, message: str):
+    def warning(self, message: str, **kwargs):
         """Log warning message"""
-        self.console.print(f"⚠️ {message}", style="warning")
+        self.console.print(f"⚠️ {message}", style="warning", **kwargs)
 
-    def error(self, message: str):
+    def error(self, message: str, **kwargs):
         """Log error message"""
-        self.console.print(f"✗ {message}", style="error")
+        self.console.print(f"✗ {message}", style="error", **kwargs)
 
 # Global logger instance
 logger = Logger.get_instance()

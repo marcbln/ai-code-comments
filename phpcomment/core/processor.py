@@ -80,7 +80,7 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
         systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(originalCode, strategy)
         llmResponseRaw = LLMClient(modelWithPrefix=model).sendRequest(systemPrompt, userPrompt)
         logger.success(f"LLM request completed in {time.time() - start_time:.1f}s")
-        logger.debug(f"LLM Response Raw:\n\n{llmResponseRaw}")
+        logger.debug(f"LLM Response Raw:\n\n{llmResponseRaw}", highlight=False)
 
         # Apply changes using strategy (wholefile or udiff)
         pathModifiedCodeTempFile = strategy.process_llm_response(llmResponseRaw, pathOrigFile)

@@ -125,8 +125,8 @@ class PatcherV3:
                 after.append(content)
 
         self.console.print(f"[info]Converted hunk to before/after state[/info]")
-        self.console.print(f"[blue]Before[/blue]\n{''.join(before)}")
-        self.console.print(f"[blue]After[/blue]\n{''.join(after)}")
+        self.console.print(f"[blue]Before[/blue]\n```\n{''.join(before)}\n```")
+        self.console.print(f"[blue]After[/blue]\n```\n{''.join(after)}\n```")
 
         return ''.join(before), ''.join(after)
 

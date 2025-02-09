@@ -135,8 +135,8 @@ class PatcherV4:
         after_text = ''.join(after)
 
         self.console.print(f"[info]Converted hunk to before/after state[/info]")
-        self.console.print(f"[blue]Before[/blue]\n{before_text}")
-        self.console.print(f"[blue]After[/blue]\n{after_text}")
+        self.console.print(f"[blue]Before[/blue]\n{before_text}", highlight=False)
+        self.console.print(f"[blue]After[/blue]\n{after_text}", highlight=False)
 
         return before_text, after_text
 
