@@ -1,18 +1,16 @@
 # ---- Core Processing Logic ----
 # File: phpcomment/core/processor.py
 
-import os
-import tempfile
-import subprocess
 import shutil
+import subprocess
+import time
 from pathlib import Path
-from typing import Optional
+
 from ..llm.api_client import LLMClient
 from ..llm.prompts import DocumentationPrompts
-from ..strategies import WholeFileStrategy, UDiffStrategy, ChangeStrategy
+from ..strategies import UDiffStrategy, ChangeStrategy
 from ..utils.logger import logger
 
-import time
 
 def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) -> bool:
     
@@ -66,9 +64,9 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
         logger.error(f"Validation error: {str(e)}")
         return False
 
-def improveDocumentationOfPhpFile(pathOrigFile: Path, verbose: bool = False,
-                                  model: str = "openrouter/qwen/qwen-2.5-coder-32b-instruct",
-                                  strategy: ChangeStrategy = WholeFileStrategy()) -> None:
+def improveDocumentationOfPhpFile(pathOrigFile: Path,
+                                  model: str,
+                                  strategy: ChangeStrategy) -> None:
     """Process PHP file through documentation pipeline"""
     originalCode = pathOrigFile.read_text()
 

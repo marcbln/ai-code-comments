@@ -5,6 +5,9 @@ import typer
 from pathlib import Path
 from typing import Optional
 from rich.console import Console
+from ..utils.logger import logger
+
+
 
 from phpcomment.strategies import UDiffStrategy, WholeFileStrategy
 from ..core.processor import improveDocumentationOfPhpFile
@@ -52,13 +55,9 @@ def comment(
             strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
             logger.debug(f"Using strategy: {strategy.__class__.__name__}")
 
-            result = improveDocumentationOfPhpFile(file_path, strategy=strategy, model=model)
-            console.print(f"✅ [green]Processed {file_path.name} in", end="")
-            print_success(f"\nSuccessfully updated documentation in [bold]{file_path}[/bold]")
+            improveDocumentationOfPhpFile(file_path, model=model, strategy=strategy)
+            print_success(f"\n✅ Successfully updated documentation in [bold]{file_path}[/bold]")
             
-            console.print("\nModified content:", markup=False)
-            console.print(result)
-                
     except Exception as e:
         handle_error(e)
 

@@ -3,6 +3,7 @@ from rich.console import Console
 from rich.theme import Theme
 import difflib
 
+from .logger import logger
 
 class PatchError(Exception):
     """Base exception for patch application errors"""
@@ -141,7 +142,61 @@ class PatcherV4:
         return before_text, after_text
 
     def _find_best_match(self, content: str, before: str) -> int:
-        """Find the best matching location for the hunk using fuzzy matching"""
+        """
+        Find the best matching location for a code hunk using exact and fuzzy matching strategies.
+
+        This method attempts to find where a piece of code ('before' content) best fits within
+        the target content. It uses a two-stage matching process:
+        1. First attempts exact string matching
+        2. If exact matching fails and fuzzy matching is enabled, uses difflib for approximate matching
+
+        Parameters
+        ----------
+        content : str
+            The full text content to search within. This is typically the entire file
+            or document where we want to find the matching location.
+        before : str
+            The text content to match against. This is typically a code snippet or
+            text block that we want to locate within the main content.
+
+        Returns
+        -------
+        int
+            The character position in 'content' where the best match begins.
+            For empty 'before' content, returns the length of 'content'.
+
+        Raises
+        ------
+        MultipleMatchesError
+            When multiple exact matches are found, making it ambiguous where to place the hunk.
+        NoMatchError
+            When no exact match is found and either:
+            - Fuzzy matching is disabled
+            - Fuzzy matching is enabled but no match meets the minimum similarity threshold
+
+        Notes
+        -----
+        The fuzzy matching algorithm:
+        - Splits both content and before text into lines
+        - Uses difflib.SequenceMatcher to find matching blocks
+        - For each matching block:
+            * Calculates similarity ratio between the matched subsequence and 'before'
+            * Requires a minimum similarity ratio of 0.8 (80% similar)
+        - Converts the best matching line number to a character position
+
+        The method prefers exact matches when available and only falls back to
+        fuzzy matching when necessary and enabled. This helps ensure the most
+        accurate placement of code hunks.
+
+        Example
+        -------
+        >>> patcher = PatcherV4(fuzzy_match=True)
+        >>> content = "def hello():\\n    print('hello')\\n\\ndef world():"
+        >>> before = "def hello():\\n    print('hello')"
+        >>> patcher._find_best_match(content, before)
+        0  # Returns 0 since the match is at the start
+        """
+
         # Handle empty before case
         if not before.strip():
             return len(content)
@@ -157,7 +212,9 @@ class PatcherV4:
             start = idx + 1
 
         if len(exact_matches) == 1:
+            logger.success(f"💡 Found exact match at {exact_matches[0]}")
             return exact_matches[0]
+
         elif len(exact_matches) > 1:
             raise MultipleMatchesError("Multiple exact matches found")
 

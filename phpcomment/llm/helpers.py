@@ -84,7 +84,7 @@ class MyHelpers:
         code_path = os.path.join("/tmp", f"{basename}{suffix}")
 
         with open(code_path, 'w') as f:
-            logger.info(f"writing file {code_path}")
+            logger.info(f"💾 writing file {code_path}")
             f.write(content)
 
         return Path(code_path)
