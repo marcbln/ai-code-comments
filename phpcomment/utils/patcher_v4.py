@@ -255,7 +255,7 @@ class PatcherV4:
 
     def _apply_single_hunk(self, content: str, before: str, after: str) -> str:
         """Apply a single hunk to the content"""
-        self.console.print("[info]Attempting to apply single hunk...[/info]")
+        # self.console.print("[info]Attempting to apply single hunk...[/info]")
 
         try:
             start = self._find_best_match(content, before)
