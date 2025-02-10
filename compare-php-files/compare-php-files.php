@@ -12,16 +12,16 @@ function main(string $file1, string $file2, bool $debug): bool
 {
     $cleaner = new PhpCleaner();
 
-try {
-    $code1 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file1));
-    $code2 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file2));
-} catch( \PhpParser\Error $e) {
+    try {
+        $code1 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file1));
+        $code2 = $cleaner->removeCommentsAndWhitespace(file_get_contents($file2));
+    } catch( \PhpParser\Error $e) {
 
-   if ($debug) {
-       echo "PHP Parsing Error: {$e->getMessage()}\n";
-   }
-   return false;
-  }
+       if ($debug) {
+           echo "PHP Parsing Error: {$e->getMessage()}\n";
+       }
+        return false;
+    }
     $equal = $code1 === $code2;
 
     if ($debug && !$equal) {
@@ -33,6 +33,9 @@ try {
         // Show diff using similar_text
         similar_text($code1, $code2, $percent);
         echo sprintf("Similarity: %.2f%%\n", $percent);
+
+        // TODO: print the diff
+
     }
 
     return $equal;
