@@ -95,7 +95,7 @@ class MyHelpers:
         suffix = pathOrigFile.suffix
         # Copy original file to temporary file
         tmp_file = tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False)
-        myLogger.debug(f"Copying {pathOrigFile} to {tmp_file.name}")
+        myLogger.debug(f"💾 Copying {pathOrigFile} to {tmp_file.name}")
         with open(pathOrigFile, 'r') as file:
             tmp_file.write(file.read())
         tmp_file.close()
