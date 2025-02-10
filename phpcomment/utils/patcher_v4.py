@@ -119,7 +119,7 @@ class PatcherV4:
 
     def _hunk_to_before_after(self, hunk: list[str]) -> tuple[str, str]:
         """Extract before/after texts from a hunk"""
-        self.console.print("[info]Converting hunk to before/after state...[/info]")
+        # self.console.print("[info]Converting hunk to before/after state...[/info]")
         before = []
         after = []
 
@@ -136,7 +136,7 @@ class PatcherV4:
         after_text = ''.join(after)
 
         # ---- print the before/after state with line numbers
-        self.console.print(f"[info]Converted hunk to before/after state[/info]")
+        # self.console.print(f"[info]Converted hunk to before/after state[/info]")
         print(f"<<<<<<<< ORIGINAL")
         for i, line in enumerate(before, start=1):
             print(f"{i:4d} | {line}", end='')
