@@ -11,7 +11,7 @@ from ..utils.logger import myLogger
 
 
 
-from phpcomment.strategies import UDiffStrategy, WholeFileStrategy
+from phpcomment.strategies import UDiffStrategy, WholeFileStrategy, SearchReplaceStrategy
 from ..core.processor import improveDocumentationOfPhpFile
 from ..utils.error_handler import handle_error
 from ..utils.output import print_success
@@ -36,6 +36,10 @@ def comment(
         False, "--diff", 
         help="Output changes as unified diff patch instead of full file"
     ),
+    use_searchreplace: bool = typer.Option(
+        False, "--searchreplace", 
+        help="Output changes as search/replace blocks"
+    ),
     verbose: bool = typer.Option(
         False, "--verbose", "-v",
         help="Enable verbose output"
@@ -52,7 +56,12 @@ def comment(
     try:
         myLogger.set_verbose(verbose)
         # Select strategy based on response type
-        strategy = UDiffStrategy() if use_udiff_coder else WholeFileStrategy()
+        if use_searchreplace:
+            strategy = SearchReplaceStrategy()
+        elif use_udiff_coder:
+            strategy = UDiffStrategy()
+        else:
+            strategy = WholeFileStrategy()
         myLogger.debug(f"Using strategy: {strategy.__class__.__name__}")
 
         myLogger.info(f"Sending request to LLM {model}...")
