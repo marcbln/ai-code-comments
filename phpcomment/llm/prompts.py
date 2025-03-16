@@ -23,6 +23,9 @@ class DocumentationPrompts:
             - Keep ALL original code except documentation, do NOT add or remove any code. only comments.
             - NEVER replace code with comments like "// ... rest of the code remains unchanged ..."
             - do NOT change or remove timestamp comments like "07/2024 created"
+            - do NOT remove comments that mark the main entry point, usually "==== MAIN ===="
+            - do NOT remove TODO and FIXME comments
+            - do NOT add comments to getters and setters"
             """)
 
         # Add strategy-specific prompt additions
