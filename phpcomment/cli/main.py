@@ -32,13 +32,10 @@ def comment(
         help="Model to use for processing (openrouter/... or deepseek/...)",
         show_default=True
     ),
-    use_udiff_coder: bool = typer.Option(
-        False, "--diff", 
-        help="Output changes as unified diff patch instead of full file"
-    ),
-    use_searchreplace: bool = typer.Option(
-        False, "--searchreplace", 
-        help="Output changes as search/replace blocks"
+    strategy: str = typer.Option(
+        "wholefile", "--strategy",
+        help="Strategy for output format: wholefile, udiff, or searchreplace",
+        show_default=True
     ),
     verbose: bool = typer.Option(
         False, "--verbose", "-v",
@@ -55,17 +52,19 @@ def comment(
     """
     try:
         myLogger.set_verbose(verbose)
-        # Select strategy based on response type
-        if use_searchreplace:
-            strategy = SearchReplaceStrategy()
-        elif use_udiff_coder:
-            strategy = UDiffStrategy()
+        # Select strategy based on strategy parameter
+        if strategy.lower() == "searchreplace":
+            strategy_obj = SearchReplaceStrategy()
+        elif strategy.lower() == "udiff":
+            strategy_obj = UDiffStrategy()
+        elif strategy.lower() == "wholefile":
+            strategy_obj = WholeFileStrategy()
         else:
-            strategy = WholeFileStrategy()
-        myLogger.debug(f"Using strategy: {strategy.__class__.__name__}")
+            raise ValueError(f"Invalid strategy: {strategy}. Choose from: wholefile, udiff, searchreplace")
+        myLogger.debug(f"Using strategy: {strategy_obj.__class__.__name__}")
 
         myLogger.info(f"Sending request to LLM {model}...")
-        improveDocumentationOfPhpFile(file_path, model=model, strategy=strategy)
+        improveDocumentationOfPhpFile(file_path, model=model, strategy=strategy_obj)
         print_success(f"\n✅ Successfully updated documentation in [bold]{file_path}[/bold]")
             
     except Exception as e:
