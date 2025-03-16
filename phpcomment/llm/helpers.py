@@ -64,7 +64,7 @@ class MyHelpers:
 
         with open(file_path, 'w') as f:
             myLogger.info(f"Writing temporary file to {file_path}")
-            myLogger.debug(f"Content of {file_path}:\n{content}")
+            # myLogger.debug(f"Content of {file_path}:\n{content}")
             f.write(content)
 
         return Path(file_path)

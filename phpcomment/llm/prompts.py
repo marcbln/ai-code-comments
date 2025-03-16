@@ -22,6 +22,7 @@ class DocumentationPrompts:
             - in big switch-case statements, add a section comment (starting with // ----) for each case.
             - Keep ALL original code except documentation, do NOT add or remove any code. only comments.
             - NEVER replace code with comments like "// ... rest of the code remains unchanged ..."
+            - do NOT change or remove timestamp comments like "07/2024 created"
             """)
 
         # Add strategy-specific prompt additions

@@ -21,7 +21,7 @@ class SearchReplaceStrategy(ChangeStrategy):
         """Return strategy-specific prompt additions for search/replace format"""
         return dedent("""
             - Output MUST use the conflict marker format with `<<<<<<<`, `=======`, and `>>>>>>>` markers, but ONLY for meaningful changes
-            - Include at most 3 lines of unchanged context before and after each meaningful change
+            - Include at most 3 lines of unchanged context before and after each code change
             - For each change, format as:
             ```            
             <<<<<<< SEARCH
