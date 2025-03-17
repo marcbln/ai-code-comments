@@ -1,6 +1,7 @@
 import typer
 from pathlib import Path
 from rich.console import Console
+from rich.syntax import Syntax
 from typing import Optional
 
 from aicoder.llm.api_client import LLMClient
@@ -77,8 +78,15 @@ def analyze_command(
         myLogger.debug(f"Analyzing file: {file}")
         response = llm.sendRequest(system_prompt, content, verbose)
         
-        # Output the feedback
-        console.print("\n[bold blue]Code Analysis Results[/bold blue]")
+        # Output the original code with syntax highlighting
+        console.print("\n[bold blue]Original PHP Code[/bold blue]")
+        console.print("=" * 40)
+        syntax = Syntax(content, "php", theme="monokai", line_numbers=True)
+        console.print(syntax)
+        console.print("\n")
+
+        # Output the analysis
+        console.print("[bold blue]Code Analysis Results[/bold blue]")
         console.print("=" * 40)
         console.print(response)
         console.print("=" * 40)
