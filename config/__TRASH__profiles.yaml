@@ -1,0 +1,10 @@
+profiles:
+  default:
+    model: openrouter/google/gemini-2.0-flash-exp:free
+    strategy: wholefile
+  searchreplace:
+    model: openrouter/qwen/qwen-2.5-coder-32b-instruct
+    strategy: searchreplace
+  udiff:
+    model: openrouter/anthropic/claude-3.5-sonnet
+    strategy: udiff

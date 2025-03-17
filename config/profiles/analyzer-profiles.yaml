@@ -1,0 +1,11 @@
+profiles:
+    default:
+        model: openrouter/google/gemini-2.0-flash-exp:free
+    sonnet:
+        model: openrouter/anthropic/claude-3.5-sonnet
+    qwen:
+        model: openrouter/qwen/qwen-2.5-coder-32b-instruct
+    qwen-r1:
+        model: openrouter/deepseek/deepseek-r1-distill-qwen-32b
+    qwen-max:
+        model: openrouter/qwen/qwen-max

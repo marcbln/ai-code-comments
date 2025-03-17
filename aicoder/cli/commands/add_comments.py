@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from aicoder.config import Config
-from aicoder.profiles import profile_loader
+from aicoder.profiles import profile_loader, ProfileType
 from aicoder.strategies import UDiffStrategy, WholeFileStrategy, SearchReplaceStrategy
 from aicoder.core.processor import improveDocumentationOfPhpFile
 from aicoder.utils.error_handler import handle_error
@@ -44,16 +44,10 @@ def add_comments_command(
         myLogger.set_verbose(verbose)
         
         # Load profile settings
-        profile_settings = profile_loader.get_profile(profile)
+        profile_settings = profile_loader.get_profile(ProfileType.COMMENTER, profile)
         if not profile_settings:
-            myLogger.warning(f"Profile '{profile}' not found, using default profile")
-            profile_settings = profile_loader.get_profile(Config.DEFAULT_PROFILE)
-            if not profile_settings:
-                # Fallback to legacy defaults if no profiles are available
-                profile_settings = {
-                    "model": Config.DEFAULT_MODEL,
-                    "strategy": "wholefile"
-                }
+            # exit the script with an error
+            raise ValueError(f"Profile '{profile}' not found")
         
         # Override profile settings with CLI arguments if provided
         selected_model = model or profile_settings["model"]
