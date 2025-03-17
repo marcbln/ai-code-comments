@@ -6,8 +6,8 @@ This script demonstrates how to use the profile loader and CLI options.
 
 import sys
 from pathlib import Path
-from phpcomment.profiles import profile_loader
-from phpcomment.config import Config
+from aicoder.profiles import profile_loader
+from aicoder.config import Config
 
 def main():
     print("Testing Profile Functionality")
@@ -29,8 +29,8 @@ def main():
         print("Default profile not found!")
     
     print("\nTest complete. Run the CLI with --help to see profile options:")
-    print("  python -m phpcomment.cli.main --help")
-    print("  python -m phpcomment.cli.main list-profiles")
+    print("  python -m aicoder.cli.main --help")
+    print("  python -m aicoder.cli.main list-profiles")
 
 if __name__ == "__main__":
     main()

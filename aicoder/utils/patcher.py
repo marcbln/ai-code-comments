@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
-from phpcomment.utils.logger import myLogger
+from aicoder.utils.logger import myLogger
 
 
 @dataclass

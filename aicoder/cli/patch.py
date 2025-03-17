@@ -2,9 +2,9 @@ from pathlib import Path
 from typing import Optional
 import typer
 from rich import print
-from phpcomment.utils.patcher import MyPatcher
-from phpcomment.utils.patcher_v3 import PatcherV3
-from phpcomment.utils.patcher_v4 import PatcherV4
+from aicoder.utils.patcher import MyPatcher
+from aicoder.utils.patcher_v3 import PatcherV3
+from aicoder.utils.patcher_v4 import PatcherV4
 
 
 def patch_files(

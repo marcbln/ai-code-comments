@@ -1,5 +1,5 @@
 # ---- Core Processing Logic ----
-# File: phpcomment/core/processor.py
+# File: aicoder/core/processor.py
 
 import shutil
 import subprocess

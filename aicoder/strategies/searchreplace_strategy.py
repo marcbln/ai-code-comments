@@ -4,8 +4,8 @@ from typing import Optional
 from textwrap import dedent
 
 from .base import ChangeStrategy
-from phpcomment.utils.logger import myLogger
-from phpcomment.llm.helpers import MyHelpers
+from aicoder.utils.logger import myLogger
+from aicoder.llm.helpers import MyHelpers
 
 
 class SearchReplaceStrategy(ChangeStrategy):

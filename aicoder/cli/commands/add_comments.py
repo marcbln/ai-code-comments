@@ -1,30 +1,16 @@
-# ---- CLI Entry Point ----
-# File: phpcomment/cli/main.py
-
 import typer
 from pathlib import Path
-from typing import Optional, List
-from rich.console import Console
-from rich.table import Table
+from typing import Optional
 
-from phpcomment.config import Config
-from phpcomment.profiles import profile_loader
-from ..utils.logger import myLogger
+from aicoder.config import Config
+from aicoder.profiles import profile_loader
+from aicoder.strategies import UDiffStrategy, WholeFileStrategy, SearchReplaceStrategy
+from aicoder.core.processor import improveDocumentationOfPhpFile
+from aicoder.utils.error_handler import handle_error
+from aicoder.utils.output import print_success
+from aicoder.utils.logger import myLogger
 
-from phpcomment.strategies import UDiffStrategy, WholeFileStrategy, SearchReplaceStrategy
-from ..core.processor import improveDocumentationOfPhpFile
-from ..utils.error_handler import handle_error
-from ..utils.output import print_success
-from ..utils.logger import myLogger
-
-app = typer.Typer(
-    help="Automated PHP documentation tool",
-    context_settings={"help_option_names": ["-h", "--help"]}
-)
-console = Console()
-
-@app.command()
-def comment(
+def add_comments_command(
     profile: str = typer.Option(
         Config.DEFAULT_PROFILE, "--profile", "-p",
         help="Profile to use (predefined model and strategy combination)",
@@ -95,34 +81,3 @@ def comment(
             
     except Exception as e:
         handle_error(e)
-
-@app.command()
-def list_profiles():
-    """List all available profiles with their settings"""
-    profiles = profile_loader.get_available_profiles()
-    
-    if not profiles:
-        console.print("[yellow]No profiles found.[/yellow]")
-        return
-    
-    table = Table(title="Available Profiles")
-    table.add_column("Profile", style="cyan")
-    table.add_column("Model", style="green")
-    table.add_column("Strategy", style="magenta")
-    
-    for profile_name in profiles:
-        profile_data = profile_loader.get_profile(profile_name)
-        if profile_data:
-            table.add_row(
-                profile_name,
-                profile_data.get("model", "N/A"),
-                profile_data.get("strategy", "N/A")
-            )
-    
-    console.print(table)
-
-def main():
-    app()
-
-if __name__ == "__main__":
-    main()

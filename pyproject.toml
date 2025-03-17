@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "phpcomment"
+name = "aicoder"
 version = "0.1.0"
 description = "Automated PHP documentation tool with PHPDoc and section comments"
 requires-python = ">=3.8"
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-phpcomment = "phpcomment.cli.main:main"
-patch = "phpcomment.cli.patch:main"
-test-patcher-v3 = "phpcomment.cli.test_patcher_v3:main"
+aicoder = "aicoder.cli.main:main"
+patch = "aicoder.cli.patch:main"
+test-patcher-v3 = "aicoder.cli.test_patcher_v3:main"
 

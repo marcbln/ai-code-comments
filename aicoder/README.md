@@ -1,6 +1,7 @@
-# PHP Documentation Automator
+# AI Coder
 
-A CLI tool for automatically adding PHPDoc blocks and section comments to PHP code.
+A CLI tool for automatically adding PHPDoc blocks and section comments to PHP code. 
+And more... suggesting code improvements, refactoring, etc...
 
 ## Features
 
@@ -16,8 +17,8 @@ A CLI tool for automatically adding PHPDoc blocks and section comments to PHP co
 uv pip install -e .
 
 # Get help
-phpcomment --help
-phpcomment comment --help
+aicoder --help
+aicoder comment --help
 ```
 
 ## Configuration

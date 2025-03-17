@@ -1,4 +1,4 @@
-from phpcomment.utils.patcher_v3 import PatcherV3, PatchError
+from aicoder.utils.patcher_v3 import PatcherV3, PatchError
 
 patcher = PatcherV3()
 

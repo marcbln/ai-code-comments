@@ -1,5 +1,5 @@
 # ---- Error Handling Utilities ----
-# File: phpcomment/utils/error_handler.py
+# File: aicoder/utils/error_handler.py
 
 from typing import Callable, TypeVar
 from functools import wraps

@@ -3,7 +3,7 @@ import re
 import tempfile
 import uuid
 from pathlib import Path
-from phpcomment.utils.logger import myLogger
+from aicoder.utils.logger import myLogger
 
 
 class MyHelpers:

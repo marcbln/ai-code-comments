@@ -1,6 +1,7 @@
 # config.py
 class Config:
     # Default profile to use if none specified
+    APP_VERSION = "1.0.0"
     DEFAULT_PROFILE = "default"
     
     # Default temperature setting for LLM requests

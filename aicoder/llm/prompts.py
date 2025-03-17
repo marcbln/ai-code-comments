@@ -1,7 +1,7 @@
 from textwrap import dedent
 from typing import Any
 
-from phpcomment.strategies import ChangeStrategy
+from aicoder.strategies import ChangeStrategy
 
 
 class DocumentationPrompts:

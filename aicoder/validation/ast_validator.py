@@ -1,5 +1,5 @@
 # ---- AST Validation ----
-# File: phpcomment/validation/ast_validator.py
+# File: aicoder/validation/ast_validator.py
 
 import subprocess
 from pathlib import Path
