@@ -3,6 +3,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.syntax import Syntax
 from typing import Optional
+import yaml
 
 from aicoder.llm.api_client import LLMClient
 from aicoder.config import Config
@@ -10,6 +11,19 @@ from aicoder.profiles import profile_loader, ProfileType
 from aicoder.utils.logger import myLogger
 
 console = Console()
+
+def load_prompts():
+    """Load prompts from analyzer-prompts.yaml"""
+    prompts_path = Path(__file__).resolve().parent.parent.parent.parent / "config" / "profiles" / "analyzer-prompts.yaml"
+    try:
+        with open(prompts_path) as f:
+            prompts = yaml.safe_load(f)["prompts"]
+            if "default" not in prompts:
+                raise ValueError("Default prompt not found in analyzer-prompts.yaml")
+            return prompts
+    except Exception as e:
+        console.print(f"[red]Error:[/red] Could not load prompts: {str(e)}")
+        raise typer.Exit(1)
 
 def analyze_command(
     file: Path = typer.Argument(..., help="File to analyze"),
@@ -53,29 +67,25 @@ def analyze_command(
         # Create LLM client
         llm = LLMClient(model_to_use)
         
-        # Analysis prompt
-        system_prompt = """You are a senior software engineer performing code analysis. 
-        Analyze the provided code and give clear, specific feedback about:
+        # Load prompts
+        prompts = load_prompts()
         
-        1. Code Quality:
-           - Structure and organization
-           - Readability and maintainability
-           - Adherence to best practices
-        
-        2. Potential Issues:
-           - Bugs or error prone patterns
-           - Security concerns
-           - Performance considerations
-        
-        3. Suggested Improvements:
-           - Specific recommendations for enhancement
-           - Alternative approaches where relevant
-           
-        Be concise but thorough. Focus on the most important points.
-        Format your response in clear sections with bullet points for readability."""
+        # Get system prompt from profile or use default
+        prompt_name = selected_profile.get("prompt", "default")
+        system_prompt = prompts[prompt_name]
         
         # Send to LLM
         myLogger.debug(f"Analyzing file: {file}")
+        
+        if verbose:
+            console.print("\n[bold yellow]AI Prompt[/bold yellow]")
+            console.print("=" * 40)
+            console.print("[bold]System Prompt:[/bold]")
+            console.print(system_prompt)
+            console.print(f"\n[bold]Code Content Size:[/bold] {len(content.encode('utf-8'))} bytes")
+            console.print("=" * 40)
+            console.print("\n")
+            
         response = llm.sendRequest(system_prompt, content, verbose)
         
         # Output the original code with syntax highlighting

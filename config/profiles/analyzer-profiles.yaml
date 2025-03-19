@@ -1,11 +1,46 @@
 profiles:
     default:
         model: openrouter/google/gemini-2.0-flash-exp:free
+        prompt: full-analysis
     sonnet:
         model: openrouter/anthropic/claude-3.5-sonnet
+        prompt: full-analysis
     qwen:
         model: openrouter/qwen/qwen-2.5-coder-32b-instruct
+        prompt: full-analysis
     qwen-r1:
         model: openrouter/deepseek/deepseek-r1-distill-qwen-32b
+        prompt: full-analysis
     qwen-max:
         model: openrouter/qwen/qwen-max
+        prompt: full-analysis
+    security:
+        model: openrouter/google/gemini-2.0-flash-exp:free
+        prompt: vulnerability-scan
+
+    refactor-sonnet:
+        model: openrouter/anthropic/claude-3.5-sonnet
+        prompt: single-refactor
+    refactor-r1-free:
+        model: openrouter/deepseek/deepseek-r1:free
+        prompt: single-refactor        
+    refactor-ds3-free:
+        model: openrouter/deepseek/deepseek-chat:free
+        prompt: single-refactor        
+    refactor-qwen-r1:
+        model: openrouter/deepseek/deepseek-r1-distill-qwen-32b
+        prompt: single-refactor        
+    refactor-qwen-r1-free:
+        model: openrouter/deepseek/deepseek-r1-distill-qwen-32b:free
+        prompt: single-refactor        
+    refactor-qwq-free:
+        model: openrouter/qwen/qwq-32b:free
+        prompt: single-refactor        
+    refactor-qwen:
+        model: openrouter/qwen/qwen-2.5-coder-32b-instruct
+        prompt: single-refactor        
+    refactor-qwq:
+        model: openrouter/qwen/qwq-32b
+        prompt: single-refactor        
+
+        
