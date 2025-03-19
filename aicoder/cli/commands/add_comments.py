@@ -46,8 +46,15 @@ def add_comments_command(
         # Load profile settings
         profile_settings = profile_loader.get_profile(ProfileType.COMMENTER, profile)
         if not profile_settings:
-            # exit the script with an error
-            raise ValueError(f"Profile '{profile}' not found")
+            # Get available profiles with their details
+            available_profiles = [
+                f"- {name} (model: {details['model']}, strategy: {details['strategy']})"
+                for name, details in profile_loader.profiles[ProfileType.COMMENTER].items()
+            ]
+            raise ValueError(
+                f"Profile '{profile}' not found. Available profiles:\n" +
+                "\n".join(available_profiles)
+            )
         
         # Override profile settings with CLI arguments if provided
         selected_model = model or profile_settings["model"]
