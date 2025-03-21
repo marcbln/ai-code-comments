@@ -5,6 +5,7 @@ from rich.syntax import Syntax
 from typing import Optional
 import yaml
 
+from aicoder.cli.util import format_bytes
 from aicoder.llm.api_client import LLMClient
 from aicoder.config import Config
 from aicoder.profiles import profile_loader, ProfileType
@@ -82,7 +83,7 @@ def analyze_command(
             console.print("=" * 40)
             console.print("[bold]System Prompt:[/bold]")
             console.print(system_prompt)
-            console.print(f"\n[bold]Code Content Size:[/bold] {len(content.encode('utf-8'))} bytes")
+            console.print(f"\n[bold]Code Content Size:[/bold] {format_bytes(len(content.encode('utf-8')))}")
             console.print("=" * 40)
             console.print("\n")
             
