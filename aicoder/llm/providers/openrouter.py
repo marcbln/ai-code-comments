@@ -46,7 +46,10 @@ class OpenRouterApiAdapter(LLMProvider):
                 timeout=30
             )
             response.raise_for_status()
-            return response.json()['choices'][0]['message']['content']
+            response_json = response.json()
+            if 'choices' not in response_json:
+                raise RuntimeError(f"OpenRouter API error: 'choices' key missing in response. Full response: {response_json}")
+            return response_json['choices'][0]['message']['content']
 
         except Exception as e:
             raise RuntimeError(f"OpenRouter API error: {str(e)}")
