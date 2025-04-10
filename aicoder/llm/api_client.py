@@ -1,9 +1,41 @@
 import json
 import time
-from typing import Optional
+import yaml
+from pathlib import Path
+from typing import Optional, Dict
 
 from .providers import OpenAIApiAdapter, OpenRouterApiAdapter
 from ..utils.logger import myLogger
+
+
+def _resolve_model_alias(model_input: str) -> str:
+    """Resolve model alias to full identifier if configured.
+    
+    Args:
+        model_input: The input model name which may be an alias
+        
+    Returns:
+        The resolved model name or original input if no alias found
+    """
+    try:
+        # Look for config file in project root/config directory
+        config_path = Path(__file__).parent.parent.parent / "config" / "model-aliases.yaml"
+        if not config_path.exists():
+            myLogger.debug(f"No model aliases file found at {config_path}")
+            return model_input
+            
+        with open(config_path) as f:
+            aliases = yaml.safe_load(f) or {}
+            
+        if model_input in aliases:
+            resolved = aliases[model_input]
+            myLogger.info(f"Resolved model alias '{model_input}' to '{resolved}'")
+            return resolved
+            
+    except Exception as e:
+        myLogger.warning(f"Failed to load model aliases: {str(e)}")
+        
+    return model_input
 
 
 class LLMClient:
@@ -28,7 +60,9 @@ class LLMClient:
     }
 
     def __init__(self, modelWithPrefix: str, api_key: Optional[str] = None):
-        self.model = modelWithPrefix
+        # Resolve model alias if configured
+        resolved_model = _resolve_model_alias(modelWithPrefix)
+        self.model = resolved_model
         self.provider_name = None
         self.provider = None
 
