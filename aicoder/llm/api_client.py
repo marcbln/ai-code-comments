@@ -66,12 +66,12 @@ class LLMClient:
         self.provider_name = None
         self.provider = None
 
-        # Find matching provider config
+        # Find matching provider config using the resolved model name
         for provider_name, config in self.PROVIDER_CONFIGS.items():
             for prefix in config["prefixes"]:
-                if modelWithPrefix.startswith(prefix):
+                if resolved_model.startswith(prefix):  # Check the resolved model name
                     self.provider_name = provider_name
-                    self.model = modelWithPrefix.replace(prefix, "", 1)
+                    self.model = resolved_model.replace(prefix, "", 1) # Update self.model from resolved name
                     break
             if self.provider_name:
                 break
