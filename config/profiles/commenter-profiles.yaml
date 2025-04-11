@@ -14,3 +14,5 @@ profiles:
     sonnet:
         model: claude37
         strategy: searchreplace
+
+# TODO: new section defaultProfiles: ... a list of commenter profiles to use by default [start with 1st, if it fails, try 2nd, etc]
