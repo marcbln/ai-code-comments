@@ -45,7 +45,7 @@ profiles:
 
 
     good-bad-ugly-gemini:
-        model: gemini25pro
+        model: gemini25pro-free
         prompt: good-bad-ugly
         
     good-bad-ugly-sonnet:

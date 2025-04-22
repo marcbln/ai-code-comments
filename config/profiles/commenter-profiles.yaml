@@ -1,9 +1,9 @@
 profiles:
     default:
-        model: geminiflashthinking
+        model: geminiflash20-free
         strategy: wholefile
     gemini:
-        model: gemini25pro
+        model: gemini25pro-free
         strategy: wholefile
     gemini2flash:
         model: geminiflash
