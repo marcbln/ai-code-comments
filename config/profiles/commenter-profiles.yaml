@@ -5,8 +5,11 @@ profiles:
     gemini:
         model: gemini25pro-free
         strategy: wholefile
-    gemini2flash:
-        model: geminiflash
+    geminiflash20:
+        model: geminiflash20-free
+        strategy: wholefile
+    geminiflash25:
+        model: geminiflash25
         strategy: wholefile
     qwen:
         model: qwen32b
