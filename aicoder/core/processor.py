@@ -71,7 +71,10 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path,
 
     try:
         start_time = time.time()
-        myLogger.info(f"⏳ Analyzing {len(originalCode)} characters...")
+        
+        # ---- Log initial information ----
+        num_rows = originalCode.count('\n') + 1
+        myLogger.info(f"⏳ Analyzing {len(originalCode):,} characters / {num_rows:,} lines...")
         
         # ---- send prompt to LLM ----
         systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(originalCode, strategy)

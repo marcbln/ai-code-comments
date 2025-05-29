@@ -163,6 +163,6 @@ class LLMClient:
                 f"- Model: {self.model}\n"
                 f"- Provider: {self.provider_name}\n"
                 f"- API Key: {self.api_key[:10]}...{self.api_key[-4:]}\n"
-                f"- Prompt Length: {len(userPrompt)} chars\n"
+                f"- Prompt Length: {len(userPrompt):,} chars\n"
             )
             raise RuntimeError(f"LLM API failed: {str(e)}\n{debug_info}") from e
