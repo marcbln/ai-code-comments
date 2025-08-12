@@ -41,3 +41,13 @@ profiles:
 ## Profiles (`profiles/`)
 
 The `profiles/` subdirectory contains YAML files defining different operational profiles for tasks like analysis (`analyzer-profiles.yaml`) and commenting (`commenter-profiles.yaml`). These profiles specify the model (potentially using an alias), prompts, and strategies to use for specific tasks.
+
+## Error Handling and Retries
+
+The application includes an automatic retry mechanism for handling API rate limits (HTTP 429 errors). When a rate limit is hit, the tool will automatically wait and retry the request. The behavior is configured in `aicoder/config.py`:
+
+-   `LLM_RETRY_COUNT`: The number of times to retry a failed request.
+-   `LLM_RETRY_MIN_DELAY`: The initial wait time in seconds before the first retry.
+-   `LLM_RETRY_MAX_DELAY`: The maximum time to wait between retries.
+
+The delay between retries increases linearly from the minimum to the maximum delay over the configured number of retries.
