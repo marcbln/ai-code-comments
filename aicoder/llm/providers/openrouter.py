@@ -42,15 +42,15 @@ class OpenRouterApiAdapter(LLMProvider):
         if not self.api_key:
             raise ValueError("OpenRouter API key is required. Set OPENROUTER_API_KEY environment variable.")
         
+        data, headers = self.build_request(model, messages)
+        headers.update({
+            "Authorization": f"Bearer {self.api_key}"
+        })
+
+        if verbose:
+            print(f"Making request to OpenRouter API with model: {model}")
+
         try:
-            data, headers = self.build_request(model, messages)
-            headers.update({
-                "Authorization": f"Bearer {self.api_key}"
-            })
-
-            if verbose:
-                print(f"Making request to OpenRouter API with model: {model}")
-
             response = requests.post(
                 f"{self.base_url}/chat/completions",
                 headers=headers,
@@ -58,12 +58,18 @@ class OpenRouterApiAdapter(LLMProvider):
                 timeout=30
             )
             response.raise_for_status()
+            
             response_json = response.json()
             if 'choices' not in response_json:
                 raise RuntimeError(f"OpenRouter API error: 'choices' key missing in response. Full response: {response_json}")
             return response_json['choices'][0]['message']['content']
 
+        except requests.exceptions.HTTPError:
+            # Re-raise HTTPError to allow the LLMClient's retry logic to catch it.
+            raise
         except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"OpenRouter API request failed: {str(e)}")
+            # Wrap other network-related errors (e.g., timeout, connection error).
+            raise RuntimeError(f"OpenRouter API request failed with a network error: {str(e)}") from e
         except Exception as e:
-            raise RuntimeError(f"OpenRouter API error: {str(e)}")
+            # Wrap other unexpected errors (e.g., JSON parsing).
+            raise RuntimeError(f"OpenRouter API error during response processing: {str(e)}") from e
