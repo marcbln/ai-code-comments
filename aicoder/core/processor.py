@@ -7,38 +7,69 @@ import time
 from pathlib import Path
 
 from ..llm.api_client import LLMClient
-from ..llm.prompts import DocumentationPrompts
+from ..llm.prompts import DocumentationPrompts, TwigDocumentationPrompts
 from ..strategies import UDiffStrategy, ChangeStrategy
 from ..utils.logger import myLogger
 
 
-def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) -> bool:
+def _validate_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) -> bool:
+    """Validate code changes for both PHP and Twig files"""
     
     try:
-        # Get path to comparison script
-        compare_script = Path(__file__).parent.parent.parent / 'compare-php-files' / 'compare-php-files.php'
+        file_extension = pathOriginalFile.suffix.lower()
         
-        if not compare_script.exists():
-            raise RuntimeError(f"Comparison script not found at {compare_script}")
-        
-
-        myLogger.info("Validating code changes...")
+        if file_extension == '.php':
+            # Get path to PHP comparison script
+            compare_script = Path(__file__).parent.parent.parent / 'compare-php-files' / 'compare-php-files.php'
             
-        # Run comparison
-        cmd = ['php', str(compare_script), str(pathOriginalFile), str(pathModifiedCodeTempFile)]
-        myLogger.debug(f"Running command: {' '.join(cmd)}")
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True
-        )
-        
-        if result.returncode != 0:
-            myLogger.error(f"Error running comparison script: {result.stderr}")
-            return False
+            if not compare_script.exists():
+                raise RuntimeError(f"PHP comparison script not found at {compare_script}")
             
-        is_valid = result.stdout.strip() == 'true'
-        
+            myLogger.info("Validating PHP code changes...")
+                
+            # Run PHP comparison
+            cmd = ['php', str(compare_script), str(pathOriginalFile), str(pathModifiedCodeTempFile)]
+            myLogger.debug(f"Running command: {' '.join(cmd)}")
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode != 0:
+                myLogger.error(f"Error running PHP comparison script: {result.stderr}")
+                return False
+                
+            is_valid = result.stdout.strip() == 'true'
+            
+        elif file_extension in ['.twig', '.html.twig']:
+            # Get path to Twig comparison script
+            compare_script = Path(__file__).parent.parent.parent / 'compare-twig-files' / 'compare-twig-files.php'
+            
+            if not compare_script.exists():
+                raise RuntimeError(f"Twig comparison script not found at {compare_script}")
+            
+            myLogger.info("Validating Twig code changes...")
+                
+            # Run Twig comparison
+            cmd = ['php', str(compare_script), str(pathOriginalFile), str(pathModifiedCodeTempFile)]
+            myLogger.debug(f"Running command: {' '.join(cmd)}")
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode != 0:
+                myLogger.error(f"Error running Twig comparison script: {result.stderr}")
+                return False
+                
+            is_valid = result.stdout.strip() == 'true'
+            
+        else:
+            myLogger.warning(f"Unsupported file type: {file_extension}. Skipping validation.")
+            return True  # Allow unsupported file types to pass validation
+            
         if is_valid:
             myLogger.success("Code validation passed")
             return True
@@ -63,10 +94,10 @@ def validate_php_code(pathOriginalFile: Path, pathModifiedCodeTempFile: Path) ->
         myLogger.error(f"Validation error: {str(e)}")
         return False
 
-def improveDocumentationOfPhpFile(pathOrigFile: Path,
-                                  model: str,
-                                  strategy: ChangeStrategy) -> None:
-    """Process PHP file through documentation pipeline"""
+def improve_file_documentation(pathOrigFile: Path,
+                               model: str,
+                               strategy: ChangeStrategy) -> None:
+    """Process file through documentation pipeline, detecting file type and using appropriate prompts"""
     originalCode = pathOrigFile.read_text()
 
     try:
@@ -76,8 +107,17 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path,
         num_rows = originalCode.count('\n') + 1
         myLogger.info(f"⏳ Analyzing [magenta]{pathOrigFile.name}[/magenta]: {len(originalCode):,} characters / {num_rows:,} lines...")
         
+        # ---- Determine file type and select appropriate prompt provider ----
+        file_extension = pathOrigFile.suffix.lower()
+        
+        if file_extension == '.php':
+            systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(originalCode, strategy)
+        elif file_extension in ['.twig', '.html.twig']:
+            systemPrompt, userPrompt = TwigDocumentationPrompts.get_full_prompt(originalCode, strategy)
+        else:
+            raise RuntimeError(f"Unsupported file type: {file_extension}")
+        
         # ---- send prompt to LLM ----
-        systemPrompt, userPrompt = DocumentationPrompts.get_full_prompt(originalCode, strategy)
         llmResponseRaw = LLMClient(modelWithPrefix=model).sendRequest(systemPrompt, userPrompt)
         myLogger.success(f"LLM request completed in {time.time() - start_time:.1f}s")
         myLogger.debug(f"[blue]Raw Response from LLM {model}[/blue]\n")
@@ -89,14 +129,11 @@ def improveDocumentationOfPhpFile(pathOrigFile: Path,
             myLogger.warning("No changes were made to the file")
             return
 
-
         myLogger.success(f"Temp file {pathModifiedCodeTempFile} was created.")
         
         # Validate the changes
-        is_valid = validate_php_code(pathOrigFile, pathModifiedCodeTempFile)
+        is_valid = _validate_code(pathOrigFile, pathModifiedCodeTempFile)
         if not is_valid:
-
-
             raise RuntimeError(
                 f"Failed to process {pathOrigFile.name}: Code validation failed. "
                 "The changes would alter the code functionality."

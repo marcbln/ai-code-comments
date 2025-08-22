@@ -5,7 +5,7 @@ from typing import Optional
 from aicoder.config import Config
 from aicoder.profiles import profile_loader, ProfileType
 from aicoder.strategies import UDiffStrategy, WholeFileStrategy, SearchReplaceStrategy
-from aicoder.core.processor import improveDocumentationOfPhpFile
+from aicoder.core.processor import improve_file_documentation
 from aicoder.utils.error_handler import handle_error
 from aicoder.utils.output import print_success
 from aicoder.utils.logger import myLogger
@@ -30,14 +30,15 @@ def add_comments_command(
         False, "--verbose", "-v",
         help="Enable verbose output"
     ),
-    file_path: Path = typer.Argument(..., help="Path to PHP file to document", exists=True)
+    file_path: Path = typer.Argument(..., help="Path to PHP or Twig file to document", exists=True)
 ):
     """
-    Add PHPDoc comments and section markers to a PHP file
+    Add PHPDoc comments and section markers to PHP and Twig files
     
     Features:
-    - Generates PHPDoc blocks for classes and functions
-    - Adds // ---- section separators
+    - Generates PHPDoc blocks for PHP classes and functions
+    - Generates TwigDoc comments for Twig templates
+    - Adds section separators
     - Preserves original code structure
     """
     try:
@@ -78,7 +79,7 @@ def add_comments_command(
         myLogger.debug(f"Using strategy: {strategy_obj.__class__.__name__}")
         myLogger.info(f"Sending request to LLM {selected_model}...")
         
-        improveDocumentationOfPhpFile(file_path, model=selected_model, strategy=strategy_obj)
+        improve_file_documentation(file_path, model=selected_model, strategy=strategy_obj)
         print_success(f"\n✅ Successfully updated documentation in [bold]{file_path}[/bold]")
             
     except Exception as e:
