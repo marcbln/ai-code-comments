@@ -42,6 +42,7 @@ def add_comments_command(
     """
     try:
         myLogger.set_verbose(verbose)
+        myLogger.info(f"Processing file {file_path.resolve()}...")
         
         # Load profile settings
         profile_settings = profile_loader.get_profile(ProfileType.COMMENTER, profile)
