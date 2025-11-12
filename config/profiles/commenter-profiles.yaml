@@ -2,8 +2,8 @@ profiles:
     default:
         model: geminiflash20-free
         strategy: wholefile
-    gemini:
-        model: gemini25pro-free
+    m2:
+        model: m2-free
         strategy: wholefile
     geminiflash20:
         model: geminiflash20-free
