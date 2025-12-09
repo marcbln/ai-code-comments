@@ -3,18 +3,21 @@ profiles:
         model: geminiflash20-free
         strategy: wholefile
     m2:
-        model: m2-free
+        model: m2
         strategy: wholefile
-    geminiflash20:
+    flash20-free:
         model: geminiflash20-free
         strategy: wholefile
-    geminiflash25:
+    flash25:
         model: geminiflash25
+        strategy: wholefile
+    flash25-lite:
+        model: geminiflash25-lite
         strategy: wholefile
     qwen:
         model: qwen32b
         strategy: searchreplace
-    sonnet:
+    sonnet37:
         model: claude37
         strategy: searchreplace
 
