@@ -17,8 +17,11 @@ profiles:
     qwen:
         model: qwen32b
         strategy: searchreplace
-    sonnet37:
-        model: claude37
+#    sonnet37:
+#        model: sonnet37
+#        strategy: searchreplace
+    sonnet45:
+        model: sonnet45
         strategy: searchreplace
 
 # TODO: new section defaultProfiles: ... a list of commenter profiles to use by default [start with 1st, if it fails, try 2nd, etc]

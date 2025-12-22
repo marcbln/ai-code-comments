@@ -10,7 +10,7 @@ This document outlines the plan to implement a model aliasing system within the 
     ```yaml
     # config/model-aliases.yaml
     gpt4o: openai/gpt-4o-2024-05-13
-    claude35: openrouter/anthropic/claude-3.5-sonnet
+    sonnet35: openrouter/anthropic/claude-3.5-sonnet
     geminiflash: openrouter/google/gemini-2.0-flash-exp:free
     deepseekcoder: openrouter/deepseek/deepseek-coder
     ```

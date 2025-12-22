@@ -3,7 +3,7 @@ profiles:
         model: geminiflash
         prompt: full-analysis
     sonnet:
-        model: claude35
+        model: sonnet35
         prompt: full-analysis
     qwen:
         model: qwen32b
@@ -19,7 +19,7 @@ profiles:
         prompt: vulnerability-scan
 
     refactor-sonnet:
-        model: claude35
+        model: sonnet35
         prompt: single-refactor
     refactor-r1-free:
         model: deepseekr1free
@@ -49,6 +49,6 @@ profiles:
         prompt: good-bad-ugly
         
     good-bad-ugly-sonnet:
-        model: claude37
+        model: sonnet37
         prompt: good-bad-ugly
 
