@@ -20,4 +20,5 @@ qwq32b: openrouter/qwen/qwq-32b
 qwen3: openrouter/qwen/qwen3-30b-a3b:free
 glm4-free: openrouter/thudm/glm-4-32b:free
 m2: openrouter/minimax/minimax-m2
+m25: openrouter/minimax/minimax-m2.5
 m2-free: openrouter/minimax/minimax-m2:free
