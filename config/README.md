@@ -13,7 +13,7 @@ The file uses a simple YAML dictionary format:
 ```yaml
 # alias: full_model_identifier
 gpt4o: openai/gpt-4o-2024-05-13
-claude35: openrouter/anthropic/claude-3.5-sonnet
+sonnet35: openrouter/anthropic/claude-3.5-sonnet
 # ... add more aliases as needed
 ```
 
@@ -28,13 +28,13 @@ This resolution happens automatically within the `LLMClient`.
 
 **Example:**
 
-If `model-aliases.yaml` contains `claude35: openrouter/anthropic/claude-3.5-sonnet`, you can use `claude35` in your profile files (like `analyzer-profiles.yaml` or `commenter-profiles.yaml`) instead of the full identifier:
+If `model-aliases.yaml` contains `sonnet35: openrouter/anthropic/claude-3.5-sonnet`, you can use `sonnet35` in your profile files (like `analyzer-profiles.yaml` or `commenter-profiles.yaml`) instead of the full identifier:
 
 ```yaml
 # In config/profiles/analyzer-profiles.yaml
 profiles:
   sonnet:
-    model: claude35 # Alias will be resolved automatically
+    model: sonnet35 # Alias will be resolved automatically
     prompt: full-analysis
 ```
 
