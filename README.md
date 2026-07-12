@@ -1,5 +1,7 @@
 # aicoder
 
+> **⚠️ Archived — July 2026.** This project is no longer maintained.
+
 CLI tool for automatically adding PHPDoc blocks and section comments to PHP (and Twig) files using LLMs.
 
 ## Features
